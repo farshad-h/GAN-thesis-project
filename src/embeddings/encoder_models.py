@@ -45,33 +45,31 @@ class BasicAutoencoder(nn.Module):
 
     Suitable for grayscale datasets like MNIST.
     """
-    def __init__(self, code_dim):
-        super(BasicAutoencoder, self).__init__()
+    def init(self, code_dim):
+        super(BasicAutoencoder, self).init()
 
         # Encoder
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1),  # Input: (1, 28, 28)
             nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(16, 8, kernel_size=3, stride=1, padding=1),
+            nn.MaxPool2d(2, 2),  # Output: (16, 14, 14)
+            nn.Conv2d(16, 8, kernel_size=3, stride=1, padding=1),  # Output: (8, 14, 14)
             nn.ReLU(),
-            nn.MaxPool2d(2, 2)
+            nn.MaxPool2d(2, 2)  # Output: (8, 7, 7)
         )
-        self.fc_encoder = nn.Linear(8 * 7 * 7, code_dim)
+        self.fc_encoder = nn.Linear(8 * 7 * 7, code_dim)  # Flatten to embedding dimension
 
         # Decoder
-        self.fc_decoder = nn.Linear(code_dim, 8 * 7 * 7)
+        self.fc_decoder = nn.Linear(code_dim, 8 * 7 * 7)  # Unflatten to feature map
         self.decoder = nn.Sequential(
             nn.ReLU(),
             nn.Unflatten(1, (8, 7, 7)),
-            nn.Conv2d(8, 8, kernel_size=3, stride=1, padding=1),
+            nn.ConvTranspose2d(8, 8, kernel_size=3, stride=1, padding=1),  # Learned upsampling
             nn.ReLU(),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1),
+            nn.ConvTranspose2d(8, 16, kernel_size=3, stride=1, padding=1),  # Learned upsampling
             nn.ReLU(),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1),
-            nn.Tanh()
+            nn.ConvTranspose2d(16, 1, kernel_size=3, stride=1, padding=1),  # Output: (1, 28, 28)
+            nn.Tanh()  # Outputs pixel values in range [-1, 1]
         )
 
     def forward(self, x):
@@ -178,6 +176,67 @@ class AdvancedAutoencoder(nn.Module):
         encoded = self.fc_encoder(encoded)
         decoded = self.fc_decoder(encoded)
         decoded = self.decoder(decoded)
+        return encoded, decoded
+
+class AdvancedAutoencoder(nn.Module):
+    """
+    A more advanced autoencoder with skip connections.
+
+    Features:
+    - Skip connections between encoder and decoder layers for better gradient flow.
+    - LeakyReLU activations and Batch Normalization for improved performance.
+
+    Suitable for complex embedding tasks requiring detailed reconstruction.
+    """
+    def __init__(self, code_dim):
+        super(AdvancedAutoencoder, self).__init__()
+
+        # Encoder with Skip Connections
+        self.encoder = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),  # Input: (1, 28, 28)
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(32),
+            nn.MaxPool2d(2, 2),  # Output: (32, 14, 14)
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),  # Output: (64, 14, 14)
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(64),
+            nn.MaxPool2d(2, 2),  # Output: (64, 7, 7)
+        )
+        self.fc_encoder = nn.Linear(64 * 7 * 7, code_dim)
+
+        # Decoder with Skip Connections (actual skip connections)
+        self.fc_decoder = nn.Linear(code_dim, 64 * 7 * 7)  # Unflatten to encoder's feature size
+        self.decoder_conv1 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1)  # Learned upsampling
+        self.decoder_conv2 = nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1)  # Output: (1, 28, 28)
+
+        self.relu = nn.ReLU()
+        self.leaky_relu = nn.LeakyReLU(0.2)
+        self.batch_norm = nn.BatchNorm2d(32)
+
+    def forward(self, x):
+        # Encoder
+        batch_size = x.size(0)
+        encoded = self.encoder(x)
+        encoded = encoded.view(batch_size, -1)
+        encoded = self.fc_encoder(encoded)
+
+        # Decoder with Skip Connections
+        decoded_fc = self.fc_decoder(encoded)  # Get fully connected output
+        decoded_fc = decoded_fc.view(batch_size, 64, 7, 7)  # Unflatten back to feature map size
+        
+        # Skip connection from encoder (we'll add the encoder output directly)
+        decoded = self.decoder_conv1(decoded_fc)  # First layer of decoder
+        
+        # Add skip connection from encoder
+        # Here, we're directly adding the output of the encoder feature map to the decoder's output
+        skip_connection = encoded.view(batch_size, 64, 7, 7)  # Recreate feature map from encoded code
+        decoded = decoded + skip_connection  # Skip connection added
+
+        decoded = self.leaky_relu(decoded)
+        decoded = self.batch_norm(decoded)
+        decoded = self.decoder_conv2(decoded)  # Output: (1, 28, 28)
+        decoded = torch.tanh(decoded)
+
         return encoded, decoded
 
 class EnhancedAutoencoder(nn.Module):

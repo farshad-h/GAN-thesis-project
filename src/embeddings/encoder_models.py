@@ -98,74 +98,26 @@ class IntermediateAutoencoder(nn.Module):
 
         # Encoder
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),  # Input: (1, 28, 28)
             nn.ReLU(),
             nn.BatchNorm2d(32),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.MaxPool2d(2, 2),  # Output: (32, 14, 14)
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),  # Output: (64, 14, 14)
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2),  # Output: (64, 7, 7)
         )
-        self.fc_encoder = nn.Linear(64 * 7 * 7, code_dim)
+        self.fc_encoder = nn.Linear(64 * 7 * 7, code_dim)  # Flatten to embedding dimension
 
         # Decoder
-        self.fc_decoder = nn.Linear(code_dim, 64 * 7 * 7)
+        self.fc_decoder = nn.Linear(code_dim, 64 * 7 * 7)  # Unflatten to feature map
         self.decoder = nn.Sequential(
             nn.ReLU(),
             nn.Unflatten(1, (64, 7, 7)),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # Learned upsampling
             nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),
-            nn.Tanh()
-        )
-
-    def forward(self, x):
-        batch_size = x.size(0)
-        encoded = self.encoder(x)
-        encoded = encoded.view(batch_size, -1)
-        encoded = self.fc_encoder(encoded)
-        decoded = self.fc_decoder(encoded)
-        decoded = self.decoder(decoded)
-        return encoded, decoded
-
-class AdvancedAutoencoder(nn.Module):
-    """
-    A more advanced autoencoder with skip connections.
-
-    Features:
-    - Skip connections between encoder and decoder layers for better gradient flow.
-    - LeakyReLU activations and Batch Normalization for improved performance.
-
-    Suitable for complex embedding tasks requiring detailed reconstruction.
-    """
-
-    def __init__(self, code_dim):
-        super(AdvancedAutoencoder, self).__init__()
-
-        # Encoder with Skip Connections
-        self.encoder = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(32),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(64),
-            nn.MaxPool2d(2, 2),
-        )
-        self.fc_encoder = nn.Linear(64 * 7 * 7, code_dim)
-
-        # Decoder (with transposed convolutions and skip connections)
-        self.fc_decoder = nn.Linear(code_dim, 64 * 7 * 7)
-        self.decoder = nn.Sequential(
-            nn.ReLU(),
-            nn.Unflatten(1, (64, 7, 7)),
-            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(32),
-            nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # Output: (1, 28, 28)
             nn.Tanh()
         )
 
@@ -255,44 +207,40 @@ class EnhancedAutoencoder(nn.Module):
 
         # Encoder
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),  # Input: (1, 28, 28)
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(32),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2),  # Output: (32, 14, 14)
 
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),  # Output: (64, 14, 14)
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2),  # Output: (64, 7, 7)
 
-            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),  # Output: (128, 7, 7)
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(128),
-            nn.MaxPool2d(2, 2)
+            nn.MaxPool2d(2, 2)  # Output: (128, 3, 3)
         )
 
-        # Code layer (fully connected)
         self.fc_encoder = nn.Linear(128 * 3 * 3, code_dim)
 
-        # Decoder (with skip connections)
+        # Decoder with learned upsampling
         self.fc_decoder = nn.Linear(code_dim, 128 * 3 * 3)
         self.decoder = nn.Sequential(
             nn.ReLU(),
             nn.Unflatten(1, (128, 3, 3)),
 
-            # First transposed convolution (upsample)
-            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),  # Learned upsampling
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
 
-            # Second transposed convolution (upsample)
             nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(32),
 
-            # Final transposed convolution (output layer)
-            nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1),
-            nn.Tanh()  # For MNIST, Tanh is typically used to normalize outputs between [-1, 1]
+            nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (1, 28, 28)
+            nn.Tanh()
         )
 
     def forward(self, x):
@@ -300,7 +248,7 @@ class EnhancedAutoencoder(nn.Module):
 
         # Encoding
         encoded = self.encoder(x)
-        encoded = encoded.view(batch_size, -1)  # Flatten before the fully connected layer
+        encoded = encoded.view(batch_size, -1)
         encoded = self.fc_encoder(encoded)
 
         # Decoding

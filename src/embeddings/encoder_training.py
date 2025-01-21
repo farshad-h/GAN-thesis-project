@@ -12,9 +12,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
+from torchvision import transforms
+import torch.nn.functional as F
+from torchvision.transforms import ToTensor
 # from encoder_models import IntermediateAutoencoder, EnhancedAutoencoder, VAE, DenoisingAutoencoder, init_weights
 # from src.data_utils import preprocess_images, load_data
-from torchvision import transforms
 from skimage.metrics import structural_similarity as ssim
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
@@ -194,14 +196,193 @@ def train_with_ntxent_loss(model, data_loader, ntxent_loss_fn, optimizer, schedu
         scheduler.step()
         print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / len(data_loader):.4f}")
 
+def train_autoencoder_with_contrastive_loss(
+    model,
+    data_loader,
+    contrastive_loss_fn,
+    optimizer,
+    epochs=10,
+    device="cpu",
+    noise_factor=0.0,
+    temperature=0.5,
+):
+    """
+    Train an autoencoder model with a given contrastive loss function.
+
+    Args:
+        model (nn.Module): The autoencoder model.
+        data_loader (DataLoader): DataLoader for training data.
+        contrastive_loss_fn (callable): Contrastive loss function (e.g., NT-Xent, InfoNCE).
+        optimizer (torch.optim.Optimizer): Optimizer.
+        epochs (int): Number of epochs to train.
+        device (str): Device to train on ('cpu' or 'cuda').
+        noise_factor (float): Factor for adding noise to the input images for training.
+        temperature (float): Scaling factor for similarity scores in contrastive learning.
+
+    Returns:
+        None: Prints loss values for each epoch.
+    """
+    model.to(device).train()
+
+    for epoch in range(epochs):
+        total_loss = 0
+        for images, _ in data_loader:
+            images = images.to(device).float()
+
+            # Optionally add noise to the images for denoising autoencoder training
+            if noise_factor > 0:
+                noisy_images = images + noise_factor * torch.randn_like(images)
+                noisy_images = torch.clamp(noisy_images, 0., 1.)
+                encoded, decoded = model(noisy_images)
+            else:
+                encoded, decoded = model(images)
+
+            # Augment images for contrastive learning (using different views of the same image)
+            augmented_1 = augment(images)
+            augmented_2 = augment(images)
+
+            # Forward pass for contrastive loss
+            z1, _ = model(augmented_1)  # Embedding from first augmented view
+            z2, _ = model(augmented_2)  # Embedding from second augmented view
+
+            # Compute contrastive loss (e.g., NT-Xent)
+            contrastive_loss_value = contrastive_loss_fn(z1, z2, temperature)
+
+            # Reconstruction loss for autoencoder
+            reconstruction_loss = nn.MSELoss()(decoded, images)
+
+            # Total loss: Combine reconstruction and contrastive loss
+            loss = reconstruction_loss + contrastive_loss_value
+
+            # Backpropagation
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            total_loss += loss.item()
+
+        print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / len(data_loader):.4f}")
+
+
+def train_autoencoder_with_triplet_loss(
+    model,
+    data_loader,
+    triplet_loss_fn,
+    optimizer,
+    scheduler,
+    epochs=10,
+    device="cpu",
+):
+    """
+    Train an autoencoder model with Triplet Loss.
+
+    Args:
+        model (nn.Module): The autoencoder model.
+        data_loader (DataLoader): DataLoader for training triplet data.
+        triplet_loss_fn (nn.Module): Triplet loss function (e.g., nn.TripletMarginLoss).
+        optimizer (torch.optim.Optimizer): Optimizer for the model.
+        scheduler (torch.optim.lr_scheduler._LRScheduler): Learning rate scheduler.
+        epochs (int): Number of epochs to train.
+        device (str): Device to train on ('cpu' or 'cuda').
+
+    Returns:
+        None: Prints loss values for each epoch.
+    """
+    model.to(device).train()
+
+    for epoch in range(epochs):
+        total_loss = 0
+        for anchor, positive, negative in data_loader:
+            anchor, positive, negative = (
+                anchor.to(device).float(),
+                positive.to(device).float(),
+                negative.to(device).float(),
+            )
+
+            # Forward pass
+            anchor_encoded, _ = model(anchor)
+            positive_encoded, _ = model(positive)
+            negative_encoded, _ = model(negative)
+
+            # Compute triplet loss
+            loss = triplet_loss_fn(anchor_encoded, positive_encoded, negative_encoded)
+
+            # Backpropagation
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            total_loss += loss.item()
+
+        scheduler.step()
+        print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / len(data_loader):.4f}")
+
+
+def train_autoencoder_with_ntxent_loss(
+    model,
+    data_loader,
+    ntxent_loss_fn,
+    optimizer,
+    scheduler,
+    epochs=10,
+    device="cpu",
+    temperature=0.5,
+):
+    """
+    Train an autoencoder model with NT-Xent loss.
+
+    Args:
+        model (nn.Module): The autoencoder model.
+        data_loader (DataLoader): DataLoader for training data.
+        ntxent_loss_fn (callable): NT-Xent loss function.
+        optimizer (torch.optim.Optimizer): Optimizer for the model.
+        scheduler (torch.optim.lr_scheduler._LRScheduler): Learning rate scheduler.
+        epochs (int): Number of epochs to train.
+        device (str): Device to train on ('cpu' or 'cuda').
+        temperature (float): Scaling factor for similarity scores in NT-Xent loss.
+
+    Returns:
+        None: Prints loss values for each epoch.
+    """
+    model.to(device).train()
+
+    for epoch in range(epochs):
+        total_loss = 0
+        for images, _ in data_loader:
+            images = images.to(device).float()
+
+            # Generate augmented views of the images
+            augmented_1 = augment(images)
+            augmented_2 = augment(images)
+
+            # Forward pass for NT-Xent loss
+            z1, _ = model(augmented_1)
+            z2, _ = model(augmented_2)
+
+            # Compute NT-Xent loss
+            loss = ntxent_loss_fn(z1, z2, temperature)
+
+            # Backpropagation
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            total_loss += loss.item()
+
+        scheduler.step()
+        print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / len(data_loader):.4f}")
+
 
 def augment(images):
-    """Apply augmentations to images."""
+    """Apply augmentations to images directly as tensors."""
     transform = transforms.Compose([
-        transforms.RandomResizedCrop(size=28, scale=(0.8, 1.0)),
-        transforms.RandomHorizontalFlip(),
+        transforms.RandomResizedCrop(size=28, scale=(0.8, 1.0)),  # Random resize and crop
+        transforms.RandomHorizontalFlip(),  # Random horizontal flip
     ])
-    augmented_images = torch.stack([transforms.ToTensor()(transform(transforms.ToPILImage()(img.squeeze(0)))) for img in images])
+    
+    # Since images are already tensors, we need to ensure the augmentations can work with them.
+    augmented_images = torch.stack([transform(ToPILImage()(img)) for img in images])
+    
     return augmented_images.to(images.device)
 
 def vae_loss(recon_x, x, mu, logvar, beta=1):

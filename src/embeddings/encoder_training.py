@@ -19,64 +19,108 @@ from torchvision.transforms import ToTensor
 # from src.data_utils import preprocess_images, load_data
 from skimage.metrics import structural_similarity as ssim
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from torchvision.transforms.functional import resize, hflip
 
-class VicRegLoss(nn.Module):
-    def __init__(self, lambda_param=25, mu_param=25, nu_param=1):
-        """
-        VicReg loss implementation for variance, mean, and covariance regularization.
 
-        Args:
-            lambda_param (float): Weight for the variance term.
-            mu_param (float): Weight for the mean term.
-            nu_param (float): Weight for the covariance term.
-        """
-        super(VicRegLoss, self).__init__()
-        self.lambda_param = lambda_param
-        self.mu_param = mu_param
-        self.nu_param = nu_param
-
-    def forward(self, z1, z2):
-        """
-        Computes the VicReg loss between two sets of embeddings.
-
-        Args:
-            z1 (torch.Tensor): First set of embeddings.
-            z2 (torch.Tensor): Second set of embeddings.
-
-        Returns:
-            torch.Tensor: Computed VicReg loss.
-        """
-        # Variance loss
-        variance_loss = torch.mean(torch.relu(1 - torch.std(z1, dim=0))) + \
-                        torch.mean(torch.relu(1 - torch.std(z2, dim=0)))
-
-        # Mean loss
-        mean_loss = torch.mean((torch.mean(z1, dim=0) - torch.mean(z2, dim=0))**2)
-
-        # Covariance loss
-        covariance_loss = torch.norm(torch.mm(z1.T, z1) / z1.size(0)) + \
-                          torch.norm(torch.mm(z2.T, z2) / z2.size(0))
-
-        # Total VicReg loss
-        return self.lambda_param * variance_loss + self.mu_param * mean_loss + self.nu_param * covariance_loss
-
-def nt_xent_loss(z1, z2, temperature=0.5):
+def train_autoencoder(
+    model,
+    data_loader,
+    loss_fn,
+    optimizer,
+    scheduler=None,
+    epochs=10,
+    device="cpu",
+    noise_factor=0.0,
+    augment_fn=None,
+    contrastive_loss_fn=None,
+    temperature=0.5,
+    triplet_data=False,
+):
     """
-    Compute the NT-Xent contrastive loss.
+    Train an autoencoder model with support for contrastive learning, noise injection, and augmentations.
 
     Args:
-        z1 (torch.Tensor): First set of embeddings.
-        z2 (torch.Tensor): Second set of embeddings.
-        temperature (float): Temperature parameter for scaling.
+        model (nn.Module): The autoencoder model.
+        data_loader (DataLoader): DataLoader for training data.
+        loss_fn (callable): Primary loss function (e.g., reconstruction loss).
+        optimizer (torch.optim.Optimizer): Optimizer for the model.
+        scheduler (torch.optim.lr_scheduler._LRScheduler, optional): Learning rate scheduler.
+        epochs (int): Number of epochs to train.
+        device (str): Device to train on ('cpu' or 'cuda').
+        noise_factor (float): Factor for adding noise to input images (denoising autoencoder).
+        augment_fn (callable, optional): Augmentation function for contrastive learning.
+        contrastive_loss_fn (callable, optional): Contrastive loss function (e.g., NT-Xent, triplet loss).
+        temperature (float): Temperature parameter for NT-Xent loss.
+        triplet_data (bool): Whether the data_loader provides triplets (anchor, positive, negative).
 
     Returns:
-        torch.Tensor: NT-Xent loss.
+        None: Prints loss values for each epoch.
     """
-    sim_matrix = torch.mm(z1, z2.T) / temperature
-    batch_size = z1.size(0)
-    sim_matrix.fill_diagonal_(-float('inf'))
-    labels = torch.arange(batch_size, device=z1.device)
-    return nn.CrossEntropyLoss()(sim_matrix, labels)
+    model.to(device).train()
+
+    for epoch in range(epochs):
+        total_loss = 0
+        for batch in data_loader:
+            # Prepare data based on whether it's triplet data or not
+            if triplet_data:
+                anchor, positive, negative = batch
+                anchor, positive, negative = (
+                    anchor.to(device).float(),
+                    positive.to(device).float(),
+                    negative.to(device).float(),
+                )
+                images = anchor  # Use anchor as the primary input for reconstruction
+            else:
+                images, _ = batch
+                images = images.to(device).float()
+
+            # Add noise if specified
+            if noise_factor > 0:
+                noisy_images = images + noise_factor * torch.randn_like(images)
+                noisy_images = torch.clamp(noisy_images, 0.0, 1.0)
+                encoded, decoded = model(noisy_images)
+            else:
+                encoded, decoded = model(images)
+
+            # Compute reconstruction loss
+            reconstruction_loss = loss_fn(decoded, images)
+
+            # Compute contrastive loss if specified
+            contrastive_loss_value = 0
+            if contrastive_loss_fn is not None:
+                if triplet_data:
+                    # Triplet loss
+                    positive_encoded, _ = model(positive)
+                    negative_encoded, _ = model(negative)
+                    contrastive_loss_value = contrastive_loss_fn(encoded, positive_encoded, negative_encoded)
+                else:
+                    # NT-Xent or other contrastive loss
+                    if augment_fn:
+                        augmented_1 = augment_fn(images)
+                        augmented_2 = augment_fn(images)
+                        z1, _ = model(augmented_1)
+                        z2, _ = model(augmented_2)
+                    else:
+                        z1, z2 = encoded, encoded  # Use the same embeddings if no augmentation
+                    contrastive_loss_value = contrastive_loss_fn(z1, z2, temperature)
+
+            # Total loss
+            total_loss_value = reconstruction_loss + contrastive_loss_value
+
+            # Backpropagation
+            optimizer.zero_grad()
+            total_loss_value.backward()
+            optimizer.step()
+
+            total_loss += total_loss_value.item()
+
+        # Step the scheduler if provided
+        if scheduler:
+            scheduler.step()
+
+        # Print epoch loss
+        print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / len(data_loader):.4f}")
+
 
 def train_autoencoder(model, data_loader, loss_fn, optimizer, epochs=10, device="cpu", noise_factor=0.0):
     """
@@ -371,19 +415,6 @@ def train_autoencoder_with_ntxent_loss(
 
         scheduler.step()
         print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / len(data_loader):.4f}")
-
-
-def augment(images):
-    """Apply augmentations to images directly as tensors."""
-    transform = transforms.Compose([
-        transforms.RandomResizedCrop(size=28, scale=(0.8, 1.0)),  # Random resize and crop
-        transforms.RandomHorizontalFlip(),  # Random horizontal flip
-    ])
-    
-    # Since images are already tensors, we need to ensure the augmentations can work with them.
-    augmented_images = torch.stack([transform(ToPILImage()(img)) for img in images])
-    
-    return augmented_images.to(images.device)
 
 def vae_loss(recon_x, x, mu, logvar, beta=1):
     """

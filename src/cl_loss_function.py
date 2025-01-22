@@ -17,8 +17,80 @@ from torchvision import transforms
 import numpy as np
 from sklearn.decomposition import PCA
 
-# Contrastive Learning Loss Functions
+def augment(images):
+    """
+    Apply tensor-based augmentations to images.
 
+    Args:
+        images (torch.Tensor): Batch of images.
+
+    Returns:
+        torch.Tensor: Augmented images.
+    """
+    # Resize and crop
+    images = resize(images, size=[28, 28])
+    # Random horizontal flip
+    if torch.rand(1) > 0.5:
+        images = hflip(images)
+    return images
+
+class VicRegLoss(nn.Module):
+    def __init__(self, lambda_var=25, mu_mean=25, nu_cov=1):
+        """
+        Implements the Variance-Invariance-Covariance Regularization (VicReg) loss.
+        """
+        super(VicRegLoss, self).__init__()
+        self.lambda_var = lambda_var
+        self.mu_mean = mu_mean
+        self.nu_cov = nu_cov
+
+    def forward(self, z1, z2):
+        """
+        Compute the VicReg loss between two embeddings.
+        """
+        # Variance Loss
+        variance_loss = torch.mean(torch.relu(1 - torch.std(z1, dim=0))) + \
+                        torch.mean(torch.relu(1 - torch.std(z2, dim=0)))
+
+        # Mean Loss
+        mean_loss = torch.mean((torch.mean(z1, dim=0) - torch.mean(z2, dim=0))**2)
+
+        # Covariance Loss
+        def compute_covariance_loss(z):
+            z_centered = z - z.mean(dim=0)
+            covariance_matrix = torch.mm(z_centered.T, z_centered) / (z.size(0) - 1)
+            off_diagonal_sum = torch.sum(covariance_matrix ** 2) - torch.sum(torch.diag(covariance_matrix) ** 2)
+            return off_diagonal_sum
+
+        covariance_loss = compute_covariance_loss(z1) + compute_covariance_loss(z2)
+
+        # Total Loss
+        total_loss = self.lambda_var * variance_loss + \
+                     self.mu_mean * mean_loss + \
+                     self.nu_cov * covariance_loss
+        return total_loss
+
+def contrastive_ntxent_loss(z1, z2, temperature=0.5):
+    """
+    Compute the NT-Xent (Normalized Temperature-scaled Cross Entropy) Loss.
+
+    Args:
+        z1, z2 (torch.Tensor): Embedding tensors.
+        temperature (float): Scaling factor for similarity scores.
+
+    Returns:
+        torch.Tensor: Loss value.
+    """
+    z1 = F.normalize(z1, dim=1)
+    z2 = F.normalize(z2, dim=1)
+
+    sim_matrix = torch.mm(z1, z2.T) / temperature
+    batch_size = z1.size(0)
+    sim_matrix.fill_diagonal_(-float('inf'))
+    labels = torch.arange(batch_size, device=z1.device)
+    return nn.CrossEntropyLoss()(sim_matrix, labels)
+
+# Contrastive Learning Loss Functions
 def contrastive_loss(z1, z2, temperature=0.5):
     """
     Basic contrastive loss.

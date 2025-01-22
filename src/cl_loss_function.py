@@ -35,10 +35,15 @@ def augment(images):
     return images
 
 class VicRegLoss(nn.Module):
+    """
+    Variance-Invariance-Covariance Regularization (VicReg) Loss for contrastive learning.
+
+    Args:
+        lambda_var (float): Weight for the variance term.
+        mu_mean (float): Weight for the mean term.
+        nu_cov (float): Weight for the covariance term.
+    """
     def __init__(self, lambda_var=25, mu_mean=25, nu_cov=1):
-        """
-        Implements the Variance-Invariance-Covariance Regularization (VicReg) loss.
-        """
         super(VicRegLoss, self).__init__()
         self.lambda_var = lambda_var
         self.mu_mean = mu_mean
@@ -46,16 +51,23 @@ class VicRegLoss(nn.Module):
 
     def forward(self, z1, z2):
         """
-        Compute the VicReg loss between two embeddings.
+        Compute the VicReg loss between two sets of embeddings.
+
+        Args:
+            z1 (torch.Tensor): First set of embeddings.
+            z2 (torch.Tensor): Second set of embeddings.
+
+        Returns:
+            torch.Tensor: Computed VicReg loss.
         """
-        # Variance Loss
+        # Variance loss
         variance_loss = torch.mean(torch.relu(1 - torch.std(z1, dim=0))) + \
                         torch.mean(torch.relu(1 - torch.std(z2, dim=0)))
 
-        # Mean Loss
+        # Mean loss
         mean_loss = torch.mean((torch.mean(z1, dim=0) - torch.mean(z2, dim=0))**2)
 
-        # Covariance Loss
+        # Covariance loss
         def compute_covariance_loss(z):
             z_centered = z - z.mean(dim=0)
             covariance_matrix = torch.mm(z_centered.T, z_centered) / (z.size(0) - 1)
@@ -64,36 +76,92 @@ class VicRegLoss(nn.Module):
 
         covariance_loss = compute_covariance_loss(z1) + compute_covariance_loss(z2)
 
-        # Total Loss
+        # Total loss
         total_loss = self.lambda_var * variance_loss + \
                      self.mu_mean * mean_loss + \
                      self.nu_cov * covariance_loss
         return total_loss
 
-def contrastive_ntxent_loss(z1, z2, temperature=0.5):
+class NTXentLoss(nn.Module):
     """
-    Compute the NT-Xent (Normalized Temperature-scaled Cross Entropy) Loss.
+    NT-Xent (Normalized Temperature-scaled Cross Entropy) Loss for contrastive learning.
 
     Args:
-        z1, z2 (torch.Tensor): Embedding tensors.
         temperature (float): Scaling factor for similarity scores.
-
-    Returns:
-        torch.Tensor: Loss value.
     """
-    z1 = F.normalize(z1, dim=1)
-    z2 = F.normalize(z2, dim=1)
+    def __init__(self, temperature=0.5):
+        super(NTXentLoss, self).__init__()
+        self.temperature = temperature
 
-    sim_matrix = torch.mm(z1, z2.T) / temperature
-    batch_size = z1.size(0)
-    sim_matrix.fill_diagonal_(-float('inf'))
-    labels = torch.arange(batch_size, device=z1.device)
-    return nn.CrossEntropyLoss()(sim_matrix, labels)
+    def forward(self, z_i, z_j):
+        """
+        Compute the NT-Xent loss between two sets of embeddings.
+
+        Args:
+            z_i (torch.Tensor): First set of embeddings.
+            z_j (torch.Tensor): Second set of embeddings.
+
+        Returns:
+            torch.Tensor: Computed NT-Xent loss.
+        """
+        batch_size = z_i.size(0)
+
+        # Normalize embeddings
+        z_i = F.normalize(z_i, dim=1)
+        z_j = F.normalize(z_j, dim=1)
+
+        # Concatenate embeddings
+        z = torch.cat([z_i, z_j], dim=0)
+
+        # Compute similarity matrix
+        similarity_matrix = torch.matmul(z, z.T) / self.temperature
+
+        # Mask for positives and negatives
+        mask = ~torch.eye(2 * batch_size, device=z.device).bool()
+        positives = torch.cat([
+            torch.diag(similarity_matrix, batch_size),
+            torch.diag(similarity_matrix, -batch_size)
+        ])
+        negatives = similarity_matrix.masked_select(mask).view(2 * batch_size, -1)
+
+        # Compute NT-Xent loss
+        numerator = torch.exp(positives)
+        denominator = torch.sum(torch.exp(negatives), dim=-1)
+        return -torch.mean(torch.log(numerator / denominator))
+
+class TripletLoss(nn.Module):
+    """
+    Triplet Loss for metric learning.
+
+    Args:
+        margin (float): Margin for triplet loss.
+    """
+    def __init__(self, margin=1.0):
+        super(TripletLoss, self).__init__()
+        self.margin = margin
+        self.criterion = nn.TripletMarginWithDistanceLoss(
+            distance_function=lambda a, b: 1.0 - F.cosine_similarity(a, b),
+            margin=self.margin
+        )
+
+    def forward(self, anchor, positive, negative):
+        """
+        Compute the Triplet loss.
+
+        Args:
+            anchor (torch.Tensor): Anchor embeddings.
+            positive (torch.Tensor): Positive embeddings.
+            negative (torch.Tensor): Negative embeddings.
+
+        Returns:
+            torch.Tensor: Computed Triplet loss.
+        """
+        return self.criterion(anchor, positive, negative)
 
 # Contrastive Learning Loss Functions
 def contrastive_loss(z1, z2, temperature=0.5):
     """
-    Basic contrastive loss.
+    Compute the basic contrastive loss using a similarity matrix and CrossEntropyLoss.
 
     Args:
         z1 (torch.Tensor): First set of embeddings.
@@ -106,12 +174,13 @@ def contrastive_loss(z1, z2, temperature=0.5):
     z1 = F.normalize(z1, p=2, dim=1)
     z2 = F.normalize(z2, p=2, dim=1)
     similarity_matrix = torch.mm(z1, z2.T) / temperature
-    labels = torch.arange(z1.size(0)).to(z1.device)
+    labels = torch.arange(z1.size(0), device=z1.device)
     return nn.CrossEntropyLoss()(similarity_matrix, labels)
+
 
 def info_nce_loss(z1, z2, temperature=0.5):
     """
-    InfoNCE loss for contrastive learning.
+    Compute the InfoNCE (Info Noise Contrastive Estimation) loss.
 
     Args:
         z1 (torch.Tensor): First set of embeddings.
@@ -126,7 +195,7 @@ def info_nce_loss(z1, z2, temperature=0.5):
     batch_size = z1.size(0)
     similarity_matrix = torch.mm(z1, z2.T) / temperature
 
-    pos_mask = torch.eye(batch_size).to(z1.device)
+    pos_mask = torch.eye(batch_size, device=z1.device)
     neg_mask = 1 - pos_mask
 
     numerator = torch.exp(similarity_matrix * pos_mask)
@@ -135,86 +204,13 @@ def info_nce_loss(z1, z2, temperature=0.5):
     loss = -torch.log(numerator / denominator)
     return loss.mean()
 
-def nt_xent_loss(z1, z2, temperature=0.5):
-    """
-    NT-Xent loss for self-supervised contrastive learning.
-
-    Args:
-        z1 (torch.Tensor): First set of embeddings.
-        z2 (torch.Tensor): Second set of embeddings.
-        temperature (float): Scaling factor for similarity scores.
-
-    Returns:
-        torch.Tensor: Computed NT-Xent loss.
-    """
-    z1 = F.normalize(z1, p=2, dim=1)
-    z2 = F.normalize(z2, p=2, dim=1)
-    batch_size = z1.size(0)
-    z = torch.cat([z1, z2], dim=0)
-    similarity_matrix = torch.matmul(z, z.T) / temperature
-    mask = ~torch.eye(2 * batch_size, device=z.device).bool()
-    positives = torch.cat([torch.diag(similarity_matrix, batch_size), torch.diag(similarity_matrix, -batch_size)])
-    negatives = similarity_matrix.masked_select(mask).view(2 * batch_size, -1)
-
-    numerator = torch.exp(positives)
-    denominator = torch.sum(torch.exp(negatives), dim=-1)
-    return -torch.mean(torch.log(numerator / denominator))
-
-# NT-Xent Loss Class
-class NTXentLoss(nn.Module):
-    def __init__(self, temperature=0.5):
-        """
-        NT-Xent Loss module for contrastive learning.
-
-        Args:
-            temperature (float): Scaling factor for similarity scores.
-        """
-        super(NTXentLoss, self).__init__()
-        self.temperature = temperature
-
-    def forward(self, z_i, z_j):
-        batch_size = z_i.size(0)
-
-        z_i = F.normalize(z_i, dim=1)
-        z_j = F.normalize(z_j, dim=1)
-
-        z = torch.cat([z_i, z_j], dim=0)
-        similarity_matrix = torch.matmul(z, z.T) / self.temperature
-
-        mask = ~torch.eye(2 * batch_size, device=z.device).bool()
-        positives = torch.cat([
-            torch.diag(similarity_matrix, batch_size),
-            torch.diag(similarity_matrix, -batch_size)
-        ])
-        negatives = similarity_matrix.masked_select(mask).view(2 * batch_size, -1)
-
-        numerator = torch.exp(positives)
-        denominator = torch.sum(torch.exp(negatives), dim=-1)
-        return -torch.mean(torch.log(numerator / denominator))
-
-# Triplet Loss
-class TripletLoss(nn.Module):
-    def __init__(self, margin=1.0):
-        """
-        Triplet Loss module for metric learning.
-
-        Args:
-            margin (float): Margin for triplet loss.
-        """
-        super(TripletLoss, self).__init__()
-        self.margin = margin
-        self.criterion = nn.TripletMarginWithDistanceLoss(
-            distance_function=lambda a, b: 1.0 - F.cosine_similarity(a, b),
-            margin=self.margin
-        )
-
-    def forward(self, anchor, positive, negative):
-        return self.criterion(anchor, positive, negative)
-
-# Contrastive Head
 class ContrastiveHead(nn.Module):
     """
-    Contrastive learning projection head for embeddings.
+    Projection head for contrastive learning.
+
+    Args:
+        input_dim (int): Input dimension of embeddings.
+        projection_dim (int): Output dimension of projected embeddings.
     """
     def __init__(self, input_dim, projection_dim=128):
         super(ContrastiveHead, self).__init__()
@@ -225,13 +221,21 @@ class ContrastiveHead(nn.Module):
         )
 
     def forward(self, x):
+        """
+        Forward pass for the projection head.
+
+        Args:
+            x (torch.Tensor): Input embeddings.
+
+        Returns:
+            torch.Tensor: Projected embeddings.
+        """
         return self.projector(x)
 
 # Augmented NT-Xent Loss
-
 def compute_nt_xent_loss_with_augmentation(images, model, contrastive_head, temperature=0.5):
     """
-    Computes NT-Xent loss with data augmentation.
+    Compute NT-Xent loss with data augmentation.
 
     Args:
         images (torch.Tensor): Input images.
@@ -242,18 +246,22 @@ def compute_nt_xent_loss_with_augmentation(images, model, contrastive_head, temp
     Returns:
         torch.Tensor: Computed NT-Xent loss.
     """
-    image1 = torch.stack([transform(image) for image in images])
-    image2 = torch.stack([transform(image) for image in images])
-    z1 = contrastive_head(model(image1))
-    z2 = contrastive_head(model(image2))
+    # Generate two augmented views
+    augmented_1 = augment(images)
+    augmented_2 = augment(images)
+
+    # Forward pass through the model and projection head
+    z1 = contrastive_head(model(augmented_1))
+    z2 = contrastive_head(model(augmented_2))
+
+    # Compute NT-Xent loss
     loss_fn = NTXentLoss(temperature=temperature)
     return loss_fn(z1, z2)
 
-# Augmented Triplet Loss
 
 def compute_triplet_loss_with_augmentation(images, model, contrastive_head, margin=1.0):
     """
-    Computes Triplet loss with data augmentation.
+    Compute Triplet loss with data augmentation.
 
     Args:
         images (torch.Tensor): Input images.
@@ -264,18 +272,56 @@ def compute_triplet_loss_with_augmentation(images, model, contrastive_head, marg
     Returns:
         torch.Tensor: Computed Triplet loss.
     """
+    # Generate anchor, positive, and negative samples
     indices = torch.randperm(images.size(0))
     anchor_images = images
     positive_images = images[indices]
     negative_images = images[torch.randperm(images.size(0))]
 
-    anchor_images = torch.stack([transform(image) for image in anchor_images])
-    positive_images = torch.stack([transform(image) for image in positive_images])
-    negative_images = torch.stack([transform(image) for image in negative_images])
+    # Augment images
+    anchor_images = augment(anchor_images)
+    positive_images = augment(positive_images)
+    negative_images = augment(negative_images)
 
+    # Forward pass through the model and projection head
     anchor_embeddings = contrastive_head(model(anchor_images))
     positive_embeddings = contrastive_head(model(positive_images))
     negative_embeddings = contrastive_head(model(negative_images))
 
+    # Compute Triplet loss
+    loss_fn = TripletLoss(margin=margin)
+    return loss_fn(anchor_embeddings, positive_embeddings, negative_embeddings)
+
+# Augmented Triplet Loss
+def compute_triplet_loss_with_augmentation(images, model, contrastive_head, margin=1.0):
+    """
+    Compute Triplet loss with data augmentation.
+
+    Args:
+        images (torch.Tensor): Input images.
+        model (nn.Module): Base model for feature extraction.
+        contrastive_head (ContrastiveHead): Projection head for embeddings.
+        margin (float): Margin for triplet loss.
+
+    Returns:
+        torch.Tensor: Computed Triplet loss.
+    """
+    # Generate anchor, positive, and negative samples
+    indices = torch.randperm(images.size(0))
+    anchor_images = images
+    positive_images = images[indices]
+    negative_images = images[torch.randperm(images.size(0))]
+
+    # Augment images
+    anchor_images = augment(anchor_images)
+    positive_images = augment(positive_images)
+    negative_images = augment(negative_images)
+
+    # Forward pass through the model and projection head
+    anchor_embeddings = contrastive_head(model(anchor_images))
+    positive_embeddings = contrastive_head(model(positive_images))
+    negative_embeddings = contrastive_head(model(negative_images))
+
+    # Compute Triplet loss
     loss_fn = TripletLoss(margin=margin)
     return loss_fn(anchor_embeddings, positive_embeddings, negative_embeddings)

@@ -8,14 +8,15 @@ Original file is located at
 """
 
 import os
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from torchvision import transforms
-import numpy as np
 from sklearn.decomposition import PCA
+from torchvision.transforms.functional import resize, hflip
 
 def augment(images):
     """
@@ -257,40 +258,6 @@ def compute_nt_xent_loss_with_augmentation(images, model, contrastive_head, temp
     # Compute NT-Xent loss
     loss_fn = NTXentLoss(temperature=temperature)
     return loss_fn(z1, z2)
-
-
-def compute_triplet_loss_with_augmentation(images, model, contrastive_head, margin=1.0):
-    """
-    Compute Triplet loss with data augmentation.
-
-    Args:
-        images (torch.Tensor): Input images.
-        model (nn.Module): Base model for feature extraction.
-        contrastive_head (ContrastiveHead): Projection head for embeddings.
-        margin (float): Margin for triplet loss.
-
-    Returns:
-        torch.Tensor: Computed Triplet loss.
-    """
-    # Generate anchor, positive, and negative samples
-    indices = torch.randperm(images.size(0))
-    anchor_images = images
-    positive_images = images[indices]
-    negative_images = images[torch.randperm(images.size(0))]
-
-    # Augment images
-    anchor_images = augment(anchor_images)
-    positive_images = augment(positive_images)
-    negative_images = augment(negative_images)
-
-    # Forward pass through the model and projection head
-    anchor_embeddings = contrastive_head(model(anchor_images))
-    positive_embeddings = contrastive_head(model(positive_images))
-    negative_embeddings = contrastive_head(model(negative_images))
-
-    # Compute Triplet loss
-    loss_fn = TripletLoss(margin=margin)
-    return loss_fn(anchor_embeddings, positive_embeddings, negative_embeddings)
 
 # Augmented Triplet Loss
 def compute_triplet_loss_with_augmentation(images, model, contrastive_head, margin=1.0):

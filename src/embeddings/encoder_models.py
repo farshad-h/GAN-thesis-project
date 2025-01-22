@@ -37,16 +37,16 @@ def init_weights(m):
 
 class BasicAutoencoder(nn.Module):
     """
-    A simple autoencoder for learning compact embeddings.
+    A simple autoencoder for MNIST.
 
     Architecture:
     - Encoder: Two convolutional layers followed by max-pooling.
     - Decoder: Two transposed convolutional layers to reconstruct the input.
 
-    Suitable for grayscale datasets like MNIST.
+    Suitable for learning compact embeddings of MNIST digits.
     """
-    def init(self, code_dim):
-        super(BasicAutoencoder, self).init()
+    def __init__(self, code_dim):
+        super(BasicAutoencoder, self).__init__()
 
         # Encoder
         self.encoder = nn.Sequential(
@@ -64,9 +64,9 @@ class BasicAutoencoder(nn.Module):
         self.decoder = nn.Sequential(
             nn.ReLU(),
             nn.Unflatten(1, (8, 7, 7)),
-            nn.ConvTranspose2d(8, 8, kernel_size=3, stride=1, padding=1),  # Learned upsampling
+            nn.ConvTranspose2d(8, 8, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (8, 14, 14)
             nn.ReLU(),
-            nn.ConvTranspose2d(8, 16, kernel_size=3, stride=1, padding=1),  # Learned upsampling
+            nn.ConvTranspose2d(8, 16, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (16, 28, 28)
             nn.ReLU(),
             nn.ConvTranspose2d(16, 1, kernel_size=3, stride=1, padding=1),  # Output: (1, 28, 28)
             nn.Tanh()  # Outputs pixel values in range [-1, 1]
@@ -74,18 +74,21 @@ class BasicAutoencoder(nn.Module):
 
     def forward(self, x):
         batch_size = x.size(0)
-        encoded = self.encoder(x)
-        flattened_dim = encoded.size(1) * encoded.size(2) * encoded.size(3)
-        encoded = encoded.view(batch_size, flattened_dim)
-        encoded = self.fc_encoder(encoded)
 
+        # Encoder
+        encoded = self.encoder(x)
+        encoded = encoded.view(batch_size, -1)  # Flatten to (batch_size, 8 * 7 * 7)
+        encoded = self.fc_encoder(encoded)  # Output: (batch_size, code_dim)
+
+        # Decoder
         decoded = self.fc_decoder(encoded)
-        decoded = self.decoder(decoded)
+        decoded = self.decoder(decoded)  # Output: (batch_size, 1, 28, 28)
+
         return encoded, decoded
 
 class IntermediateAutoencoder(nn.Module):
     """
-    An autoencoder with intermediate complexity.
+    An autoencoder with intermediate complexity for MNIST.
 
     Features:
     - Uses Batch Normalization to improve stability during training.
@@ -114,86 +117,33 @@ class IntermediateAutoencoder(nn.Module):
         self.decoder = nn.Sequential(
             nn.ReLU(),
             nn.Unflatten(1, (64, 7, 7)),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # Learned upsampling
-            nn.BatchNorm2d(32),
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (32, 14, 14)
             nn.ReLU(),
-            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # Output: (1, 28, 28)
+            nn.BatchNorm2d(32),
+            nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (16, 28, 28)
+            nn.ReLU(),
+            nn.BatchNorm2d(16),
+            nn.ConvTranspose2d(16, 1, kernel_size=3, stride=1, padding=1),  # Output: (1, 28, 28)
             nn.Tanh()
         )
 
     def forward(self, x):
         batch_size = x.size(0)
-        encoded = self.encoder(x)
-        encoded = encoded.view(batch_size, -1)
-        encoded = self.fc_encoder(encoded)
-        decoded = self.fc_decoder(encoded)
-        decoded = self.decoder(decoded)
-        return encoded, decoded
 
-class AdvancedAutoencoder(nn.Module):
-    """
-    A more advanced autoencoder with skip connections.
-
-    Features:
-    - Skip connections between encoder and decoder layers for better gradient flow.
-    - LeakyReLU activations and Batch Normalization for improved performance.
-
-    Suitable for complex embedding tasks requiring detailed reconstruction.
-    """
-    def __init__(self, code_dim):
-        super(AdvancedAutoencoder, self).__init__()
-
-        # Encoder with Skip Connections
-        self.encoder = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),  # Input: (1, 28, 28)
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(32),
-            nn.MaxPool2d(2, 2),  # Output: (32, 14, 14)
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),  # Output: (64, 14, 14)
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(64),
-            nn.MaxPool2d(2, 2),  # Output: (64, 7, 7)
-        )
-        self.fc_encoder = nn.Linear(64 * 7 * 7, code_dim)
-
-        # Decoder with Skip Connections (actual skip connections)
-        self.fc_decoder = nn.Linear(code_dim, 64 * 7 * 7)  # Unflatten to encoder's feature size
-        self.decoder_conv1 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1)  # Learned upsampling
-        self.decoder_conv2 = nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1)  # Output: (1, 28, 28)
-
-        self.relu = nn.ReLU()
-        self.leaky_relu = nn.LeakyReLU(0.2)
-        self.batch_norm = nn.BatchNorm2d(32)
-
-    def forward(self, x):
         # Encoder
-        batch_size = x.size(0)
         encoded = self.encoder(x)
-        encoded = encoded.view(batch_size, -1)
-        encoded = self.fc_encoder(encoded)
+        encoded = encoded.view(batch_size, -1)  # Flatten to (batch_size, 64 * 7 * 7)
+        encoded = self.fc_encoder(encoded)  # Output: (batch_size, code_dim)
 
-        # Decoder with Skip Connections
-        decoded_fc = self.fc_decoder(encoded)  # Get fully connected output
-        decoded_fc = decoded_fc.view(batch_size, 64, 7, 7)  # Unflatten back to feature map size
-        
-        # Skip connection from encoder (we'll add the encoder output directly)
-        decoded = self.decoder_conv1(decoded_fc)  # First layer of decoder
-        
-        # Add skip connection from encoder
-        # Here, we're directly adding the output of the encoder feature map to the decoder's output
-        skip_connection = encoded.view(batch_size, 64, 7, 7)  # Recreate feature map from encoded code
-        decoded = decoded + skip_connection  # Skip connection added
-
-        decoded = self.leaky_relu(decoded)
-        decoded = self.batch_norm(decoded)
-        decoded = self.decoder_conv2(decoded)  # Output: (1, 28, 28)
-        decoded = torch.tanh(decoded)
+        # Decoder
+        decoded = self.fc_decoder(encoded)
+        decoded = self.decoder(decoded)  # Output: (batch_size, 1, 28, 28)
 
         return encoded, decoded
 
 class EnhancedAutoencoder(nn.Module):
     """
-    A deep autoencoder with advanced reconstruction capabilities.
+    A deep autoencoder with advanced reconstruction capabilities for MNIST.
 
     Features:
     - Deeper architecture with additional convolutional and transposed convolutional layers.
@@ -222,99 +172,184 @@ class EnhancedAutoencoder(nn.Module):
             nn.BatchNorm2d(128),
             nn.MaxPool2d(2, 2)  # Output: (128, 3, 3)
         )
+        self.fc_encoder = nn.Linear(128 * 3 * 3, code_dim)  # Flatten to embedding dimension
 
-        self.fc_encoder = nn.Linear(128 * 3 * 3, code_dim)
-
-        # Decoder with learned upsampling
-        self.fc_decoder = nn.Linear(code_dim, 128 * 3 * 3)
+        # Decoder
+        self.fc_decoder = nn.Linear(code_dim, 128 * 3 * 3)  # Unflatten to feature map
         self.decoder = nn.Sequential(
             nn.ReLU(),
             nn.Unflatten(1, (128, 3, 3)),
 
-            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),  # Learned upsampling
+            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (64, 7, 7)
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
 
-            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (32, 14, 14)
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(32),
 
-            nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (1, 28, 28)
+            nn.ConvTranspose2d(32, 16, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (16, 28, 28)
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(16),
+
+            nn.ConvTranspose2d(16, 1, kernel_size=3, stride=1, padding=1),  # Output: (1, 28, 28)
             nn.Tanh()
         )
 
     def forward(self, x):
         batch_size = x.size(0)
 
-        # Encoding
+        # Encoder
         encoded = self.encoder(x)
-        encoded = encoded.view(batch_size, -1)
-        encoded = self.fc_encoder(encoded)
+        encoded = encoded.view(batch_size, -1)  # Flatten to (batch_size, 128 * 3 * 3)
+        encoded = self.fc_encoder(encoded)  # Output: (batch_size, code_dim)
 
-        # Decoding
+        # Decoder
         decoded = self.fc_decoder(encoded)
-        decoded = self.decoder(decoded)
+        decoded = self.decoder(decoded)  # Output: (batch_size, 1, 28, 28)
 
         return encoded, decoded
 
-# Basic VAE for MNIST (Convolutional Encoder/Decoder)
-class BasicVAE(nn.Module):
+class AdvancedAutoencoder(nn.Module):
     """
-    A simple Variational Autoencoder (VAE) for grayscale datasets.
+    A more advanced autoencoder with skip connections.
 
     Features:
-    - Encoder: Two convolutional layers followed by a fully connected layer to parameterize the latent space.
-    - Decoder: Fully connected layers followed by transposed convolution layers to reconstruct input images.
+    - Skip connections between encoder and decoder layers for better gradient flow.
+    - LeakyReLU activations and Batch Normalization for improved performance.
 
-    Methods:
-        reparameterize(mu, logvar): Applies the reparameterization trick to sample latent variables.
-        forward(x): Encodes the input, samples latent variables, and reconstructs the input.
+    Suitable for complex embedding tasks requiring detailed reconstruction.
+    """
+    def __init__(self, code_dim):
+        super(AdvancedAutoencoder, self).__init__()
+
+        # Encoder
+        self.encoder_conv1 = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),  # Input: (1, 28, 28)
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(32),
+            nn.MaxPool2d(2, 2)  # Output: (32, 14, 14)
+        )
+        self.encoder_conv2 = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),  # Output: (64, 14, 14)
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(64),
+            nn.MaxPool2d(2, 2)  # Output: (64, 7, 7)
+        )
+        self.fc_encoder = nn.Linear(64 * 7 * 7, code_dim)  # Flatten to embedding dimension
+
+        # Decoder with Skip Connections
+        self.fc_decoder = nn.Linear(code_dim, 64 * 7 * 7)  # Unflatten to feature map
+        self.decoder_conv1 = nn.Sequential(
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),  # Learned upsampling
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(32)
+        )
+        self.decoder_conv2 = nn.Sequential(
+            nn.ConvTranspose2d(32, 1, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (1, 28, 28)
+            nn.Tanh()
+        )
+
+    def forward(self, x):
+        # Encoder
+        batch_size = x.size(0)
+
+        # First encoder layer
+        encoded1 = self.encoder_conv1(x)  # Output: (32, 14, 14)
+
+        # Second encoder layer
+        encoded2 = self.encoder_conv2(encoded1)  # Output: (64, 7, 7)
+
+        # Flatten and encode
+        encoded2_flat = encoded2.view(batch_size, -1)  # Flatten to (batch_size, 64 * 7 * 7)
+        encoded = self.fc_encoder(encoded2_flat)  # Output: (batch_size, code_dim)
+
+        # Decoder
+        decoded_fc = self.fc_decoder(encoded)  # Unflatten to (batch_size, 64 * 7 * 7)
+        decoded_fc = decoded_fc.view(batch_size, 64, 7, 7)  # Reshape to (batch_size, 64, 7, 7)
+
+        # First decoder layer with skip connection
+        decoded1 = self.decoder_conv1(decoded_fc)  # Output: (32, 14, 14)
+        decoded1 = decoded1 + encoded1  # Skip connection from encoder_conv1
+
+        # Second decoder layer
+        decoded = self.decoder_conv2(decoded1)  # Output: (1, 28, 28)
+
+        return encoded, decoded
+
+class BasicVAE(nn.Module):
+    """
+    A simple Variational Autoencoder (VAE) for MNIST.
+    Assumes input images are normalized to [-1, 1].
 
     Args:
         input_dim (int): Number of input channels (e.g., 1 for grayscale images).
         code_dim (int): Dimensionality of the latent space.
-    """
 
-    def __init__(self, input_dim, code_dim):
+    Forward Returns:
+        mu (torch.Tensor): Mean of the latent space distribution.
+        logvar (torch.Tensor): Log variance of the latent space distribution.
+        decoded (torch.Tensor): Reconstructed output image.
+    """
+    def __init__(self, input_dim=1, code_dim=32):
         super(BasicVAE, self).__init__()
 
         # Encoder
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(input_dim, 16, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(16),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2),  # 16x14x14
             nn.Conv2d(16, 8, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(8),
-            nn.MaxPool2d(2, 2),
-            nn.Flatten()
+            nn.MaxPool2d(2, 2),  # 8x7x7
+            nn.Flatten()  # 8*7*7 = 392
         )
 
-        self.fc_mu = nn.Linear(8 * 7 * 7, code_dim)
-        self.fc_logvar = nn.Linear(8 * 7 * 7, code_dim)
+        self.fc_mu = nn.Linear(392, code_dim)  # Latent space mean
+        self.fc_logvar = nn.Linear(392, code_dim)  # Latent space log variance
 
         # Decoder
         self.decoder = nn.Sequential(
-            nn.Linear(code_dim, 8 * 7 * 7),
+            nn.Linear(code_dim, 392),
             nn.ReLU(),
-            nn.Unflatten(1, (8, 7, 7)),
-            nn.Conv2d(8, 8, kernel_size=3, stride=1, padding=1),
+            nn.Unflatten(1, (8, 7, 7)),  # 8x7x7
+            nn.ConvTranspose2d(8, 8, kernel_size=3, stride=2, padding=1, output_padding=1),  # 8x14x14
             nn.ReLU(),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1),
+            nn.ConvTranspose2d(8, 16, kernel_size=3, stride=2, padding=1, output_padding=1),  # 16x28x28
             nn.ReLU(),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1),
-            nn.Tanh()
+            nn.ConvTranspose2d(16, input_dim, kernel_size=3, stride=1, padding=1),  # 1x28x28
+            nn.Tanh()  # Output in [-1, 1]
         )
 
     def reparameterize(self, mu, logvar):
+        """
+        Reparameterization trick to sample from the latent space distribution.
+
+        Args:
+            mu (torch.Tensor): Mean of the latent space distribution.
+            logvar (torch.Tensor): Log variance of the latent space distribution.
+
+        Returns:
+            z (torch.Tensor): Sampled latent vector.
+        """
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
     def forward(self, x):
+        """
+        Forward pass of the VAE.
+
+        Args:
+            x (torch.Tensor): Input image tensor of shape (batch_size, 1, 28, 28).
+
+        Returns:
+            mu (torch.Tensor): Mean of the latent space distribution.
+            logvar (torch.Tensor): Log variance of the latent space distribution.
+            decoded (torch.Tensor): Reconstructed output image.
+        """
         encoded = self.encoder(x)
         mu = self.fc_mu(encoded)
         logvar = self.fc_logvar(encoded)
@@ -322,115 +357,82 @@ class BasicVAE(nn.Module):
         decoded = self.decoder(z)
         return mu, logvar, decoded
 
-
-# VAE with a fully connected decoder
-class VAEWithFCDecoder(nn.Module):
-    def __init__(self, input_dim, code_dim):
-        super(VAEWithFCDecoder, self).__init__()
-
-        self.encoder = nn.Sequential(
-            nn.Conv2d(input_dim, 16, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(16),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(16, 8, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(8),
-            nn.MaxPool2d(2, 2),
-            nn.Flatten()
-        )
-
-        self.fc_mu = nn.Linear(8 * 7 * 7, code_dim)
-        self.fc_logvar = nn.Linear(8 * 7 * 7, code_dim)
-
-        # Decoder (with separate fully connected layers)
-        self.fc_decoder = nn.Linear(code_dim, 8 * 7 * 7)
-        self.decoder = nn.Sequential(
-            nn.ReLU(),
-            nn.Unflatten(1, (8, 7, 7)),
-            nn.Conv2d(8, 8, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(16, 1, kernel_size=3, stride=1, padding=1),
-            nn.Tanh()
-        )
-
-    def reparameterize(self, mu, logvar):
-        std = torch.exp(0.5 * logvar)
-        eps = torch.randn_like(std)
-        return mu + eps * std
-
-    def forward(self, x):
-        encoded = self.encoder(x)
-        mu = self.fc_mu(encoded)
-        logvar = self.fc_logvar(encoded)
-        z = self.reparameterize(mu, logvar)
-        decoded = self.fc_decoder(z)
-        decoded = self.decoder(decoded)
-        return mu, logvar, decoded
-
-
-# Improved VAE with Bottleneck Layer
 class ImprovedVAE(nn.Module):
     """
-    An improved VAE with a bottleneck layer and batch normalization.
-
-    Features:
-    - Bottleneck layer for enhanced feature extraction.
-    - Uses transposed convolutions in the decoder for smooth reconstructions.
-    - KL divergence loss for regularizing the latent space.
-
-    Methods:
-        reparameterize(mu, logvar): Applies the reparameterization trick.
-        forward(x): Encodes input, samples latent variables, and decodes the latent space.
+    An improved VAE with a bottleneck layer for MNIST.
+    Assumes input images are normalized to [-1, 1].
 
     Args:
         input_dim (int): Number of input channels (e.g., 1 for grayscale images).
         code_dim (int): Dimensionality of the latent space.
+
+    Forward Returns:
+        mu (torch.Tensor): Mean of the latent space distribution.
+        logvar (torch.Tensor): Log variance of the latent space distribution.
+        decoded (torch.Tensor): Reconstructed output image.
     """
-    def __init__(self, input_dim, code_dim):
+    def __init__(self, input_dim=1, code_dim=64):
         super(ImprovedVAE, self).__init__()
 
+        # Encoder
         self.encoder = nn.Sequential(
             nn.Conv2d(input_dim, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(32),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2),  # 32x14x14
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            nn.MaxPool2d(2, 2),
-            nn.Flatten(),
-            nn.Linear(64 * 7 * 7, 256),  # Bottleneck layer
+            nn.MaxPool2d(2, 2),  # 64x7x7
+            nn.Flatten(),  # 64*7*7 = 3136
+            nn.Linear(3136, 256),  # Bottleneck layer
             nn.ReLU()
         )
 
-        self.fc_mu = nn.Linear(256, code_dim)
-        self.fc_logvar = nn.Linear(256, code_dim)
+        self.fc_mu = nn.Linear(256, code_dim)  # Latent space mean
+        self.fc_logvar = nn.Linear(256, code_dim)  # Latent space log variance
 
-        # Decoder with Batch Normalization
+        # Decoder
         self.decoder = nn.Sequential(
             nn.Linear(code_dim, 256),
             nn.ReLU(),
-            nn.Linear(256, 64 * 7 * 7),
+            nn.Linear(256, 3136),
             nn.ReLU(),
-            nn.Unflatten(1, (64, 7, 7)),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # Upsampling with Transposed Convolution
+            nn.Unflatten(1, (64, 7, 7)),  # 64x7x7
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # 32x14x14
             nn.ReLU(),
             nn.BatchNorm2d(32),
-            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # Upsampling with Transposed Convolution
-            nn.Tanh()
+            nn.ConvTranspose2d(32, input_dim, kernel_size=4, stride=2, padding=1),  # 1x28x28
+            nn.Tanh()  # Output in [-1, 1]
         )
 
     def reparameterize(self, mu, logvar):
+        """
+        Reparameterization trick to sample from the latent space distribution.
+
+        Args:
+            mu (torch.Tensor): Mean of the latent space distribution.
+            logvar (torch.Tensor): Log variance of the latent space distribution.
+
+        Returns:
+            z (torch.Tensor): Sampled latent vector.
+        """
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
     def forward(self, x):
+        """
+        Forward pass of the VAE.
+
+        Args:
+            x (torch.Tensor): Input image tensor of shape (batch_size, 1, 28, 28).
+
+        Returns:
+            mu (torch.Tensor): Mean of the latent space distribution.
+            logvar (torch.Tensor): Log variance of the latent space distribution.
+            decoded (torch.Tensor): Reconstructed output image.
+        """
         encoded = self.encoder(x)
         mu = self.fc_mu(encoded)
         logvar = self.fc_logvar(encoded)
@@ -438,33 +440,27 @@ class ImprovedVAE(nn.Module):
         decoded = self.decoder(z)
         return mu, logvar, decoded
 
-
-# Flexible VAE for Dynamic Projection and Inputs
 class FlexibleVAE(nn.Module):
     """
-    A flexible VAE with support for dynamic input shapes and optional projection heads.
-
-    Features:
-    - Encoder: Fully connected layers with adjustable input dimensions.
-    - Decoder: Fully connected layers for reconstructing the input.
-    - Projection Head (optional): Adds a projection layer for contrastive learning.
-
-    Methods:
-        reparameterize(mu, logvar): Applies the reparameterization trick.
-        forward(x): Encodes, samples latent variables, and reconstructs the input.
+    A flexible VAE with dynamic input shapes and optional projection head.
+    Assumes input images are normalized to [-1, 1].
 
     Args:
-        input_shape (tuple): Shape of the input data.
+        input_shape (tuple): Shape of the input data (e.g., (1, 28, 28) for MNIST).
         code_dim (int): Dimensionality of the latent space.
         projection_dim (int, optional): Dimensionality of the projection head.
-    """
 
-    def __init__(self, input_shape, code_dim, projection_dim=None):
+    Forward Returns:
+        mu (torch.Tensor): Mean of the latent space distribution.
+        logvar (torch.Tensor): Log variance of the latent space distribution.
+        decoded (torch.Tensor): Reconstructed output image.
+    """
+    def __init__(self, input_shape=(1, 28, 28), code_dim=32, projection_dim=None):
         super(FlexibleVAE, self).__init__()
         self.input_shape = input_shape
-        self.code_dim = code_dim
         self.flat_size = np.prod(input_shape)
 
+        # Encoder
         self.encoder = nn.Sequential(
             nn.Linear(self.flat_size, 512),
             nn.ReLU(),
@@ -472,30 +468,54 @@ class FlexibleVAE(nn.Module):
             nn.ReLU()
         )
 
-        self.fc_mu = nn.Linear(256, code_dim)
-        self.fc_logvar = nn.Linear(256, code_dim)
+        self.fc_mu = nn.Linear(256, code_dim)  # Latent space mean
+        self.fc_logvar = nn.Linear(256, code_dim)  # Latent space log variance
+
+        # Optional projection head
         if projection_dim:
             self.projection_head = nn.Sequential(
                 nn.Linear(code_dim, projection_dim),
                 nn.ReLU()
             )
 
+        # Decoder
         self.decoder = nn.Sequential(
             nn.Linear(code_dim, 256),
             nn.ReLU(),
             nn.Linear(256, 512),
             nn.ReLU(),
             nn.Linear(512, self.flat_size),
-            nn.Tanh()
+            nn.Tanh()  # Output in [-1, 1]
         )
 
     def reparameterize(self, mu, logvar):
+        """
+        Reparameterization trick to sample from the latent space distribution.
+
+        Args:
+            mu (torch.Tensor): Mean of the latent space distribution.
+            logvar (torch.Tensor): Log variance of the latent space distribution.
+
+        Returns:
+            z (torch.Tensor): Sampled latent vector.
+        """
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
     def forward(self, x):
-        x = x.view(-1, self.flat_size)  # Flatten input dynamically
+        """
+        Forward pass of the VAE.
+
+        Args:
+            x (torch.Tensor): Input image tensor of shape (batch_size, *input_shape).
+
+        Returns:
+            mu (torch.Tensor): Mean of the latent space distribution.
+            logvar (torch.Tensor): Log variance of the latent space distribution.
+            decoded (torch.Tensor): Reconstructed output image.
+        """
+        x = x.view(-1, self.flat_size)  # Flatten input
         encoded = self.encoder(x)
         mu = self.fc_mu(encoded)
         logvar = self.fc_logvar(encoded)
@@ -509,70 +529,90 @@ class FlexibleVAE(nn.Module):
 class ImprovedFlexibleVAE(nn.Module):
     """
     A flexible and improved VAE with convolutional encoder layers.
-
-    Features:
-    - Encoder: Combines convolutional layers with fully connected layers for rich feature extraction.
-    - Decoder: Uses transposed convolutions for reconstruction.
-    - Projection Head (optional): Adds a projection layer for self-supervised tasks.
-
-    Methods:
-        reparameterize(mu, logvar): Samples latent variables using the reparameterization trick.
-        forward(x): Encodes input, samples latent variables, and decodes to reconstruct input.
+    Assumes input images are normalized to [-1, 1].
 
     Args:
-        input_shape (tuple): Shape of the input data.
+        input_shape (tuple): Shape of the input data (e.g., (1, 28, 28) for MNIST).
         code_dim (int): Dimensionality of the latent space.
         projection_dim (int, optional): Dimensionality of the projection head.
-    """
 
-    def __init__(self, input_shape, code_dim, projection_dim=None):
+    Forward Returns:
+        mu (torch.Tensor): Mean of the latent space distribution.
+        logvar (torch.Tensor): Log variance of the latent space distribution.
+        decoded (torch.Tensor): Reconstructed output image.
+    """
+    def __init__(self, input_shape=(1, 28, 28), code_dim=64, projection_dim=None):
         super(ImprovedFlexibleVAE, self).__init__()
         self.input_shape = input_shape
-        self.code_dim = code_dim
         self.flat_size = np.prod(input_shape)
 
-        # Encoder: Adding Convolutional Layers for better feature extraction
+        # Encoder
         self.encoder = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(32),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2),  # 32x14x14
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            nn.MaxPool2d(2, 2),
-            nn.Flatten(),
-            nn.Linear(64 * 7 * 7, 256),  # Bottleneck layer
+            nn.MaxPool2d(2, 2),  # 64x7x7
+            nn.Flatten(),  # 64*7*7 = 3136
+            nn.Linear(3136, 256),  # Bottleneck layer
             nn.ReLU()
         )
 
-        self.fc_mu = nn.Linear(256, code_dim)
-        self.fc_logvar = nn.Linear(256, code_dim)
+        self.fc_mu = nn.Linear(256, code_dim)  # Latent space mean
+        self.fc_logvar = nn.Linear(256, code_dim)  # Latent space log variance
 
+        # Optional projection head
         if projection_dim:
-            self.projection_head = ContrastiveHead(code_dim, projection_dim)
+            self.projection_head = nn.Sequential(
+                nn.Linear(code_dim, projection_dim),
+                nn.ReLU()
+            )
 
-        # Decoder: Adding convolutional layers for better image reconstruction
+        # Decoder
         self.decoder = nn.Sequential(
             nn.Linear(code_dim, 256),
             nn.ReLU(),
-            nn.Linear(256, 64 * 7 * 7),
+            nn.Linear(256, 3136),
             nn.ReLU(),
-            nn.Unflatten(1, (64, 7, 7)),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1), # Upsampling with ConvTranspose2d
+            nn.Unflatten(1, (64, 7, 7)),  # 64x7x7
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),  # 32x14x14
             nn.ReLU(),
             nn.BatchNorm2d(32),
-            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # Upsampling with ConvTranspose2d
-            nn.Tanh()
+            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # 1x28x28
+            nn.Tanh()  # Output in [-1, 1]
         )
 
     def reparameterize(self, mu, logvar):
+        """
+        Reparameterization trick to sample from the latent space distribution.
+
+        Args:
+            mu (torch.Tensor): Mean of the latent space distribution.
+            logvar (torch.Tensor): Log variance of the latent space distribution.
+
+        Returns:
+            z (torch.Tensor): Sampled latent vector.
+        """
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
     def forward(self, x):
-        x = x.view(-1, self.flat_size)  # Flatten input dynamically
+        """
+        Forward pass of the VAE.
+
+        Args:
+            x (torch.Tensor): Input image tensor of shape (batch_size, *input_shape).
+
+        Returns:
+            mu (torch.Tensor): Mean of the latent space distribution.
+            logvar (torch.Tensor): Log variance of the latent space distribution.
+            decoded (torch.Tensor): Reconstructed output image.
+        """
+        x = x.view(-1, *self.input_shape)  # Ensure input matches expected shape
         encoded = self.encoder(x)
         mu = self.fc_mu(encoded)
         logvar = self.fc_logvar(encoded)
@@ -580,7 +620,6 @@ class ImprovedFlexibleVAE(nn.Module):
         if hasattr(self, 'projection_head'):
             z = self.projection_head(z)
         decoded = self.decoder(z)
-        decoded = decoded.view(-1, *self.input_shape)  # Reshape output to match input shape
         return mu, logvar, decoded
 
 # Define the Combined Denoising Autoencoder Class

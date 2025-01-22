@@ -14,7 +14,6 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import LocalOutlierFactor
-from torch.utils.data import DataLoader
 from scipy.stats import skew, kurtosis
 from scipy.spatial.distance import pdist
 
@@ -229,3 +228,36 @@ def analyze_embeddings(embeddings, expected_dim=None, labels=None):
     logger.info(f"Number of outliers detected in embeddings: {num_outliers}")
 
     logger.info("Embeddings analysis completed.")
+
+def create_dataloader(embeddings_tensor, labels_tensor, batch_size=128):
+    """
+    Create a DataLoader for embeddings and their corresponding labels.
+
+    Args:
+        embeddings_tensor (torch.Tensor): Tensor of embeddings.
+        labels_tensor (torch.Tensor): Tensor of labels.
+        batch_size (int): Batch size for the DataLoader.
+
+    Returns:
+        DataLoader: DataLoader for the provided tensors.
+    """
+    dataset = TensorDataset(embeddings_tensor, labels_tensor)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+
+def create_embedding_loaders(embeddings_dict, labels_tensor, batch_size=128):
+    """
+    Creates DataLoaders for each embedding method in the dictionary.
+
+    Args:
+        embeddings_dict (dict): Dictionary where keys are method names and values are embedding tensors.
+        labels_tensor (torch.Tensor): Tensor of labels corresponding to embeddings.
+        batch_size (int): Batch size for DataLoaders.
+
+    Returns:
+        dict: Dictionary containing DataLoaders for each embedding method.
+    """
+    loaders = {}
+    for method, embeddings in embeddings_dict.items():
+        loaders[method] = create_dataloader(embeddings, labels_tensor, batch_size=batch_size)
+    return loaders

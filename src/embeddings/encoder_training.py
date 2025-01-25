@@ -44,6 +44,129 @@ class EarlyStopping:
             if self.counter >= self.patience:
                 self.early_stop = True
 
+import inspect
+
+def train_autoencoder_v4(
+    model: nn.Module,
+    data_loader: DataLoader,
+    loss_fn: Callable,
+    optimizer: optim.Optimizer,
+    epochs: int = 10,
+    device: str = "cpu",
+    scheduler: Optional[optim.lr_scheduler._LRScheduler] = None,
+    contrastive_loss_fn: Optional[Callable] = None,
+    temperature: float = 0.5,
+    triplet_data: bool = False,
+    augment_fn: Optional[Callable] = None,
+    predictor: Optional[nn.Module] = None,  # Add predictor for BYOL
+    patience: int = 5,
+    min_delta: float = 0.001,
+):
+    """
+    Unified training function for autoencoders with support for:
+    - Reconstruction loss
+    - Contrastive loss (e.g., NT-Xent, VicReg, Triplet, Contrastive, InfoNCE, Barlow Twins, BYOL)
+    - Noise injection (for denoising autoencoders)
+    - Data augmentation
+    - Early stopping
+    """
+    model.to(device).train()
+
+    # Initialize early stopping
+    early_stopping = EarlyStopping(patience=patience, min_delta=min_delta)
+
+    for epoch in range(epochs):
+        total_loss = 0
+        for batch in data_loader:
+            # Prepare data based on whether it's triplet data or not
+            if triplet_data:
+                anchor, positive, negative = batch
+                anchor, positive, negative = (
+                    anchor.to(device).float(),
+                    positive.to(device).float(),
+                    negative.to(device).float(),
+                )
+                images = anchor  # Use anchor as the primary input for reconstruction
+            else:
+                images, _ = batch
+                images = images.to(device).float()
+            
+            encoded, decoded = model(images)
+
+            # Compute reconstruction loss
+            reconstruction_loss = loss_fn(decoded, images)
+
+            # Compute contrastive loss if specified
+            contrastive_loss_value = 0
+            if contrastive_loss_fn is not None:
+                if triplet_data:
+                    # Triplet loss
+                    positive_encoded, _ = model(positive)
+                    negative_encoded, _ = model(negative)
+
+                    # Flatten embeddings
+                    encoded = encoded.view(encoded.size(0), -1)
+                    positive_encoded = positive_encoded.view(positive_encoded.size(0), -1)
+                    negative_encoded = negative_encoded.view(negative_encoded.size(0), -1)
+
+                    # Compute triplet loss
+                    contrastive_loss_value = contrastive_loss_fn(encoded, positive_encoded, negative_encoded)
+                else:
+                    # NT-Xent, VicReg, Contrastive, InfoNCE, Barlow Twins, BYOL, or other contrastive loss
+                    if augment_fn:
+                        augmented_1 = augment_fn(images)
+                        augmented_2 = augment_fn(images)
+                        z1, _ = model(augmented_1)
+                        z2, _ = model(augmented_2)
+                    else:
+                        z1, z2 = encoded, encoded  # Use the same embeddings if no augmentation
+
+                    # Flatten embeddings
+                    z1 = z1.view(z1.size(0), -1)
+                    z2 = z2.view(z2.size(0), -1)
+
+                    # Handle all contrastive losses uniformly
+                    if isinstance(contrastive_loss_fn, BYOLLoss):
+                        # BYOL requires a predictor
+                        if predictor is None:
+                            raise ValueError("Predictor network must be provided for BYOL loss.")
+                        contrastive_loss_value = contrastive_loss_fn(z1, z2, predictor)
+                    else:
+                        # # Check if the loss function accepts a `temperature` parameter
+                        # if "temperature" in inspect.signature(contrastive_loss_fn.forward).parameters:
+                        #     contrastive_loss_value = contrastive_loss_fn(z1, z2, temperature=temperature)
+                        # else:
+                        #     contrastive_loss_value = contrastive_loss_fn(z1, z2)
+                        # Check if the loss function accepts a `temperature` parameter
+                        if "temperature" in inspect.signature(contrastive_loss_fn).parameters:
+                            contrastive_loss_value = contrastive_loss_fn(z1, z2, temperature=temperature)
+                        else:
+                            contrastive_loss_value = contrastive_loss_fn(z1, z2)
+
+            # Total loss
+            total_loss_value = reconstruction_loss + contrastive_loss_value
+
+            # Backpropagation
+            optimizer.zero_grad()
+            total_loss_value.backward()
+            optimizer.step()
+
+            total_loss += total_loss_value.item()
+
+        # Step the scheduler if provided
+        if scheduler:
+            scheduler.step()
+
+        # Compute average epoch loss
+        avg_loss = total_loss / len(data_loader)
+        print(f"Epoch [{epoch + 1}/{epochs}], Train Loss: {avg_loss:.4f}")
+
+        # Check for early stopping
+        early_stopping(avg_loss)
+        if early_stopping.early_stop:
+            print(f"Early stopping triggered at epoch {epoch + 1}.")
+            break
+
 def train_autoencoder(
     model: nn.Module,
     data_loader: DataLoader,

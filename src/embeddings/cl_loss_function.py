@@ -17,8 +17,135 @@ from torchvision import transforms
 import numpy as np
 from sklearn.decomposition import PCA
 
-# Contrastive Learning Loss Functions
+class NTXentLoss(nn.Module):
+    def __init__(self, temperature=0.5):
+        super(NTXentLoss, self).__init__()
+        self.temperature = temperature
 
+    def forward(self, z_i, z_j):
+        batch_size = z_i.size(0)
+
+        # Flatten the input tensors if they are not already 2D
+        z_i = z_i.view(z_i.size(0), -1)  # Shape: (batch_size, embedding_dim)
+        z_j = z_j.view(z_j.size(0), -1)  # Shape: (batch_size, embedding_dim)
+
+        # Normalize the embeddings
+        z_i = F.normalize(z_i, dim=1)
+        z_j = F.normalize(z_j, dim=1)
+
+        # Concatenate the embeddings
+        z = torch.cat([z_i, z_j], dim=0)  # Shape: (2 * batch_size, embedding_dim)
+
+        # Compute the similarity matrix
+        similarity_matrix = torch.matmul(z, z.T) / self.temperature  # Shape: (2 * batch_size, 2 * batch_size)
+
+        # Mask for positives and negatives
+        mask = ~torch.eye(2 * batch_size, device=z.device).bool()
+        positives = torch.cat([
+            torch.diag(similarity_matrix, batch_size),  # Positive pairs (z_i, z_j)
+            torch.diag(similarity_matrix, -batch_size)  # Positive pairs (z_j, z_i)
+        ])
+        negatives = similarity_matrix.masked_select(mask).view(2 * batch_size, -1)
+
+        # Compute the NT-Xent loss
+        numerator = torch.exp(positives)
+        denominator = torch.sum(torch.exp(negatives), dim=-1)
+        loss = -torch.mean(torch.log(numerator / denominator))
+
+        return loss
+
+class VicRegLoss(nn.Module):
+    def __init__(self, lambda_var=25, mu_mean=25, nu_cov=1):
+        super(VicRegLoss, self).__init__()
+        self.lambda_var = lambda_var
+        self.mu_mean = mu_mean
+        self.nu_cov = nu_cov
+
+    def forward(self, z1, z2):
+        # Flatten z1 and z2 if they are 4D
+        if z1.dim() == 4:
+            z1 = z1.view(z1.size(0), -1)  # Shape: (batch_size, 1 * 28 * 28)
+        if z2.dim() == 4:
+            z2 = z2.view(z2.size(0), -1)  # Shape: (batch_size, 1 * 28 * 28)
+
+        # Variance loss
+        variance_loss = torch.mean(torch.relu(1 - torch.std(z1, dim=0))) + \
+                        torch.mean(torch.relu(1 - torch.std(z2, dim=0)))
+
+        # Mean loss
+        mean_loss = torch.mean((torch.mean(z1, dim=0) - torch.mean(z2, dim=0))**2)
+
+        # Covariance loss
+        z1_centered = z1 - z1.mean(dim=0)
+        z2_centered = z2 - z2.mean(dim=0)
+
+        covariance_matrix_z1 = torch.mm(z1_centered.T, z1_centered) / (z1.size(0) - 1)
+        covariance_matrix_z2 = torch.mm(z2_centered.T, z2_centered) / (z2.size(0) - 1)
+
+        covariance_loss = torch.sum(covariance_matrix_z1 ** 2) - torch.sum(torch.diag(covariance_matrix_z1) ** 2) + \
+                          torch.sum(covariance_matrix_z2 ** 2) - torch.sum(torch.diag(covariance_matrix_z2) ** 2)
+
+        # Total loss
+        total_loss = self.lambda_var * variance_loss + \
+                     self.mu_mean * mean_loss + \
+                     self.nu_cov * covariance_loss
+        return total_loss
+
+# Triplet Loss
+class TripletLoss(nn.Module):
+    def __init__(self, margin=1.0):
+        """
+        Triplet Loss module for metric learning.
+
+        Args:
+            margin (float): Margin for triplet loss.
+        """
+        super(TripletLoss, self).__init__()
+        self.margin = margin
+        self.criterion = nn.TripletMarginWithDistanceLoss(
+            distance_function=lambda a, b: 1.0 - F.cosine_similarity(a, b),
+            margin=self.margin
+        )
+
+    def forward(self, anchor, positive, negative):
+        return self.criterion(anchor, positive, negative)
+
+class BarlowTwinsLoss(nn.Module):
+    def __init__(self, lambda_param=5e-3):
+        super(BarlowTwinsLoss, self).__init__()
+        self.lambda_param = lambda_param
+
+    def forward(self, z_a, z_b):
+        """
+        Compute the Barlow Twins loss between two sets of embeddings.
+
+        Args:
+            z_a (torch.Tensor): First set of embeddings.
+            z_b (torch.Tensor): Second set of embeddings.
+
+        Returns:
+            torch.Tensor: Computed Barlow Twins loss.
+        """
+        batch_size = z_a.size(0)
+        feature_dim = z_a.size(1)
+
+        # Normalize embeddings
+        z_a = (z_a - z_a.mean(dim=0)) / z_a.std(dim=0)
+        z_b = (z_b - z_b.mean(dim=0)) / z_b.std(dim=0)
+
+        # Compute cross-correlation matrix
+        cross_corr = torch.matmul(z_a.T, z_b) / batch_size
+
+        # Loss terms
+        invariance_loss = torch.sum((1 - torch.diag(cross_corr)) ** 2)
+        redundancy_loss = torch.sum(torch.triu(cross_corr, diagonal=1) ** 2) + torch.sum(torch.tril(cross_corr, diagonal=-1) ** 2)
+
+        # Total loss
+        loss = invariance_loss + self.lambda_param * redundancy_loss
+        return loss
+
+
+# Contrastive Learning Loss Functions
 def contrastive_loss(z1, z2, temperature=0.5):
     """
     Basic contrastive loss.
@@ -62,82 +189,6 @@ def info_nce_loss(z1, z2, temperature=0.5):
 
     loss = -torch.log(numerator / denominator)
     return loss.mean()
-
-def nt_xent_loss(z1, z2, temperature=0.5):
-    """
-    NT-Xent loss for self-supervised contrastive learning.
-
-    Args:
-        z1 (torch.Tensor): First set of embeddings.
-        z2 (torch.Tensor): Second set of embeddings.
-        temperature (float): Scaling factor for similarity scores.
-
-    Returns:
-        torch.Tensor: Computed NT-Xent loss.
-    """
-    z1 = F.normalize(z1, p=2, dim=1)
-    z2 = F.normalize(z2, p=2, dim=1)
-    batch_size = z1.size(0)
-    z = torch.cat([z1, z2], dim=0)
-    similarity_matrix = torch.matmul(z, z.T) / temperature
-    mask = ~torch.eye(2 * batch_size, device=z.device).bool()
-    positives = torch.cat([torch.diag(similarity_matrix, batch_size), torch.diag(similarity_matrix, -batch_size)])
-    negatives = similarity_matrix.masked_select(mask).view(2 * batch_size, -1)
-
-    numerator = torch.exp(positives)
-    denominator = torch.sum(torch.exp(negatives), dim=-1)
-    return -torch.mean(torch.log(numerator / denominator))
-
-# NT-Xent Loss Class
-class NTXentLoss(nn.Module):
-    def __init__(self, temperature=0.5):
-        """
-        NT-Xent Loss module for contrastive learning.
-
-        Args:
-            temperature (float): Scaling factor for similarity scores.
-        """
-        super(NTXentLoss, self).__init__()
-        self.temperature = temperature
-
-    def forward(self, z_i, z_j):
-        batch_size = z_i.size(0)
-
-        z_i = F.normalize(z_i, dim=1)
-        z_j = F.normalize(z_j, dim=1)
-
-        z = torch.cat([z_i, z_j], dim=0)
-        similarity_matrix = torch.matmul(z, z.T) / self.temperature
-
-        mask = ~torch.eye(2 * batch_size, device=z.device).bool()
-        positives = torch.cat([
-            torch.diag(similarity_matrix, batch_size),
-            torch.diag(similarity_matrix, -batch_size)
-        ])
-        negatives = similarity_matrix.masked_select(mask).view(2 * batch_size, -1)
-
-        numerator = torch.exp(positives)
-        denominator = torch.sum(torch.exp(negatives), dim=-1)
-        return -torch.mean(torch.log(numerator / denominator))
-
-# Triplet Loss
-class TripletLoss(nn.Module):
-    def __init__(self, margin=1.0):
-        """
-        Triplet Loss module for metric learning.
-
-        Args:
-            margin (float): Margin for triplet loss.
-        """
-        super(TripletLoss, self).__init__()
-        self.margin = margin
-        self.criterion = nn.TripletMarginWithDistanceLoss(
-            distance_function=lambda a, b: 1.0 - F.cosine_similarity(a, b),
-            margin=self.margin
-        )
-
-    def forward(self, anchor, positive, negative):
-        return self.criterion(anchor, positive, negative)
 
 # Contrastive Head
 class ContrastiveHead(nn.Module):

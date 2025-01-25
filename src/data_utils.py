@@ -154,6 +154,15 @@ def save_embeddings(embeddings, labels, file_path):
     torch.save(data, file_path)
     logger.info(f"Embeddings saved to: {file_path}")
 
+def save_embeddings(embeddings, labels, file_path, save_format):
+    """Save embeddings and labels in the specified format."""
+    if save_format == "pt":
+        torch.save({"embeddings": embeddings, "labels": labels}, file_path)
+    elif save_format == "npy":
+        np.save(file_path, {"embeddings": embeddings.numpy(), "labels": labels.numpy()})
+    else:
+        raise ValueError(f"Unsupported save format: {save_format}")
+
 def analyze_embeddings(embeddings, expected_dim=None, labels=None):
     """
     Analyzes the embeddings by providing detailed statistical information, 
@@ -374,3 +383,29 @@ def visualize_embeddings(embeddings, labels, title="t-SNE Visualization"):
     plt.colorbar(scatter)
     plt.title(title)
     plt.show()
+
+def generate_embeddings(model, data_loader, embedding_type, device="cpu"):
+    model.eval()  # Set model to evaluation mode
+    embeddings = []
+    labels = []
+
+    with torch.no_grad():
+        for images, label_batch in data_loader:
+            images = images.to(device)
+            if embedding_type == "autoencoder":
+                encoded, _ = model(images)
+            elif embedding_type == "vae":
+                mu, _, _ = model(images)
+                encoded = mu  # Use the mean of the latent space
+            elif embedding_type == "dae":
+                _, _, encoded = model(images)
+            else:
+                raise ValueError(f"Embedding type '{embedding_type}' is not recognized.")
+
+            embeddings.append(encoded.cpu())
+            labels.append(label_batch)
+
+    embeddings = torch.cat(embeddings, dim=0)
+    labels = torch.cat(labels, dim=0)
+
+    return embeddings, labels

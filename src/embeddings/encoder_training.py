@@ -44,6 +44,47 @@ class EarlyStopping:
             if self.counter >= self.patience:
                 self.early_stop = True
 
+class BYOLLoss(nn.Module):
+    def __init__(self):
+        super(BYOLLoss, self).__init__()
+
+    def forward(self, z_a, z_b, predictor):
+        """
+        Compute the BYOL loss between two sets of embeddings.
+
+        Args:
+            z_a (torch.Tensor): First set of embeddings.
+            z_b (torch.Tensor): Second set of embeddings.
+            predictor (nn.Module): Predictor network.
+
+        Returns:
+            torch.Tensor: Computed BYOL loss.
+        """
+        # Normalize embeddings
+        z_a = F.normalize(z_a, dim=1)
+        z_b = F.normalize(z_b, dim=1)
+
+        # Predict z_b from z_a
+        p_a = predictor(z_a)
+        p_a = F.normalize(p_a, dim=1)
+
+        # Compute MSE loss between predicted and target embeddings
+        loss = 2 - 2 * (p_a * z_b).sum(dim=1).mean()
+        return loss
+
+class Predictor(nn.Module):
+    def __init__(self, input_dim, hidden_dim=512, output_dim=50):
+        super(Predictor, self).__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.BatchNorm1d(hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
 import inspect
 
 def train_autoencoder_v4(
@@ -130,7 +171,7 @@ def train_autoencoder_v4(
                         # BYOL requires a predictor
                         if predictor is None:
                             raise ValueError("Predictor network must be provided for BYOL loss.")
-                        contrastive_loss_value = contrastive_loss_fn(z1, z2, predictor)
+                        contrastive_loss_value = contrastive_loss_fn(z1, z2, predictor=predictor)
                     else:
                         # # Check if the loss function accepts a `temperature` parameter
                         # if "temperature" in inspect.signature(contrastive_loss_fn.forward).parameters:

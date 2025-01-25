@@ -736,29 +736,20 @@ class DenoisingAutoencoder(nn.Module):
             )
 
     def forward(self, x):
-        """
-        Forward pass of the denoising autoencoder.
-
-        Args:
-            x (torch.Tensor): Noisy input tensor of shape (batch_size, 1, 28, 28).
-
-        Returns:
-            projected_encoded (torch.Tensor): Projected latent space embeddings (if projection_dim is set).
-            decoded (torch.Tensor): Reconstructed clean output.
-            encoded (torch.Tensor): Latent space embeddings.
-        """
         # Encoding
         encoded = self.encoder(x)
         encoded = encoded.view(x.size(0), -1)  # Flatten
         encoded = self.fc_encoder(encoded)  # Map to latent space
 
-        # Projection (optional)
-        projected_encoded = self.projection_head(encoded) if self.projection_head else encoded
-
         # Decoding
         decoded = self.decoder(encoded)
 
-        return projected_encoded, decoded, encoded
+        # Return projected_encoded only if projection_head is defined
+        if self.projection_head:
+            projected_encoded = self.projection_head(encoded)
+            return projected_encoded, encoded, decoded
+        else:
+            return encoded, decoded
 
 def apply_dimensionality_reduction(method, data, n_components, scaler=None, **kwargs):
     """

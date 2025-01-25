@@ -297,7 +297,11 @@ def train_dae(
             noisy_images = add_noise(images, noise_factor)
 
             # Forward pass
-            _, encoded, decoded = dae(noisy_images)
+            outputs = dae(noisy_images)
+            if len(outputs) == 3:
+                projected_encoded, encoded, decoded = outputs
+            else:
+                encoded, decoded = outputs
 
             # Compute reconstruction loss
             if ssim_func:

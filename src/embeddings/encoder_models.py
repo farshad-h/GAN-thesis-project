@@ -172,13 +172,13 @@ class EnhancedAutoencoder(nn.Module):
         self.fc_decoder = nn.Linear(code_dim, 128 * 3 * 3)  # Unflatten to feature map
         self.decoder = nn.Sequential(
             nn.ReLU(),
-            nn.Unflatten(1, (128, 3, 3)),
+            nn.Unflatten(1, (128, 3, 3)),  # Reshape to (batch_size, 128, 3, 3)
 
             nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (64, 7, 7)
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
 
-            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),  # Output: (32, 14, 14)
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=0, output_padding=1),  # Output: (32, 14, 14)
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(32),
 

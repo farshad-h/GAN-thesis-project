@@ -44,110 +44,6 @@ class EarlyStopping:
             if self.counter >= self.patience:
                 self.early_stop = True
 
-# def train_autoencoder(
-#     model: nn.Module,
-#     data_loader: DataLoader,
-#     loss_fn: Callable,
-#     optimizer: optim.Optimizer,
-#     epochs: int = 10,
-#     device: str = "cpu",
-#     noise_factor: float = 0.0,
-#     scheduler: Optional[optim.lr_scheduler._LRScheduler] = None,
-#     contrastive_loss_fn: Optional[Callable] = None,
-#     temperature: float = 0.5,
-#     triplet_data: bool = False,
-#     augment_fn: Optional[Callable] = None,
-# ):
-#     """
-#     Unified training function for autoencoders with support for:
-#     - Reconstruction loss
-#     - Contrastive loss (e.g., NT-Xent, InfoNCE)
-#     - Triplet loss
-#     - Noise injection (for denoising autoencoders)
-#     - Data augmentation
-
-#     Args:
-#         model (nn.Module): The autoencoder model.
-#         data_loader (DataLoader): DataLoader for training data.
-#         loss_fn (Callable): Primary loss function (e.g., reconstruction loss).
-#         optimizer (optim.Optimizer): Optimizer for the model.
-#         epochs (int): Number of epochs to train.
-#         device (str): Device to train on ('cpu' or 'cuda').
-#         noise_factor (float): Factor for adding noise to input images (denoising autoencoder).
-#         scheduler (Optional[optim.lr_scheduler._LRScheduler]): Learning rate scheduler.
-#         contrastive_loss_fn (Optional[Callable]): Contrastive loss function (e.g., NT-Xent, triplet loss).
-#         temperature (float): Temperature parameter for NT-Xent loss.
-#         triplet_data (bool): Whether the data_loader provides triplets (anchor, positive, negative).
-#         augment_fn (Optional[Callable]): Augmentation function for contrastive learning.
-
-#     Returns:
-#         None: Prints loss values for each epoch.
-#     """
-#     model.to(device).train()
-
-#     for epoch in range(epochs):
-#         total_loss = 0
-#         for batch in data_loader:
-#             # Prepare data based on whether it's triplet data or not
-#             if triplet_data:
-#                 anchor, positive, negative = batch
-#                 anchor, positive, negative = (
-#                     anchor.to(device).float(),
-#                     positive.to(device).float(),
-#                     negative.to(device).float(),
-#                 )
-#                 images = anchor  # Use anchor as the primary input for reconstruction
-#             else:
-#                 images, _ = batch
-#                 images = images.to(device).float()
-
-#             # Add noise if specified
-#             if noise_factor > 0:
-#                 noisy_images = images + noise_factor * torch.randn_like(images)
-#                 noisy_images = torch.clamp(noisy_images, 0.0, 1.0)
-#                 encoded, decoded = model(noisy_images)
-#             else:
-#                 encoded, decoded = model(images)
-
-#             # Compute reconstruction loss
-#             reconstruction_loss = loss_fn(decoded, images)
-
-#             # Compute contrastive loss if specified
-#             contrastive_loss_value = 0
-#             if contrastive_loss_fn is not None:
-#                 if triplet_data:
-#                     # Triplet loss
-#                     positive_encoded, _ = model(positive)
-#                     negative_encoded, _ = model(negative)
-#                     contrastive_loss_value = contrastive_loss_fn(encoded, positive_encoded, negative_encoded)
-#                 else:
-#                     # NT-Xent or other contrastive loss
-#                     if augment_fn:
-#                         augmented_1 = augment_fn(images)
-#                         augmented_2 = augment_fn(images)
-#                         z1, _ = model(augmented_1)
-#                         z2, _ = model(augmented_2)
-#                     else:
-#                         z1, z2 = encoded, encoded  # Use the same embeddings if no augmentation
-#                     contrastive_loss_value = contrastive_loss_fn(z1, z2, temperature)
-
-#             # Total loss
-#             total_loss_value = reconstruction_loss + contrastive_loss_value
-
-#             # Backpropagation
-#             optimizer.zero_grad()
-#             total_loss_value.backward()
-#             optimizer.step()
-
-#             total_loss += total_loss_value.item()
-
-#         # Step the scheduler if provided
-#         if scheduler:
-#             scheduler.step()
-
-#         # Print epoch loss
-#         print(f"Epoch [{epoch + 1}/{epochs}], Loss: {total_loss / len(data_loader):.4f}")
-
 def train_autoencoder(
     model: nn.Module,
     data_loader: DataLoader,
@@ -266,110 +162,6 @@ def train_autoencoder(
         if early_stopping.early_stop:
             print(f"Early stopping triggered at epoch {epoch + 1}.")
             break
-
-# def train_vae(
-#     vae: nn.Module,
-#     train_loader: DataLoader,
-#     optimizer: torch.optim.Optimizer,
-#     loss_fn: Callable,
-#     epochs: int = 10,
-#     device: str = "cpu",
-#     val_loader: Optional[DataLoader] = None,
-#     scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
-#     save_best: bool = False,
-#     save_path: str = "best_vae_model.pth",
-#     beta: float = 1.0,
-#     alpha: Optional[float] = None,
-#     temperature: float = 0.5,
-#     contrastive_loss_fn: Optional[Callable] = None,
-# ):
-#     """
-#     Unified training function for VAEs with support for:
-#     - Reconstruction loss (e.g., MSE, SSIM).
-#     - KL divergence.
-#     - Contrastive learning (e.g., NT-Xent).
-#     - Optional validation and model saving.
-
-#     Args:
-#         vae (nn.Module): VAE model.
-#         train_loader (DataLoader): DataLoader for training data.
-#         optimizer (torch.optim.Optimizer): Optimizer for training.
-#         loss_fn (Callable): Loss function for reconstruction and KL divergence.
-#         epochs (int): Number of epochs to train.
-#         device (str): Device to train on ('cpu' or 'cuda').
-#         val_loader (Optional[DataLoader]): DataLoader for validation data.
-#         scheduler (Optional[torch.optim.lr_scheduler._LRScheduler]): Learning rate scheduler.
-#         save_best (bool): Whether to save the best model based on validation loss.
-#         save_path (str): Path to save the best model.
-#         beta (float): Weight for the KL divergence term.
-#         alpha (Optional[float]): Weight for the contrastive loss term.
-#         temperature (float): Temperature parameter for contrastive loss.
-#         contrastive_loss_fn (Optional[Callable]): Contrastive loss function (e.g., NT-Xent).
-
-#     Returns:
-#         None: Prints loss values for each epoch.
-#     """
-#     vae.to(device).train()
-#     best_val_loss = float('inf') if save_best else None
-
-#     for epoch in range(epochs):
-#         # Training loop
-#         vae.train()
-#         total_train_loss = 0
-#         for images, _ in train_loader:
-#             images = images.to(device).float()
-
-#             # Forward pass
-#             mu, logvar, decoded = vae(images)
-
-#             # Compute reconstruction and KL divergence loss
-#             recon_loss = loss_fn(decoded, images, mu, logvar, beta)
-
-#             # Compute contrastive loss if specified
-#             contrastive_loss_value = 0
-#             if contrastive_loss_fn is not None and alpha is not None:
-#                 if hasattr(vae, 'projection_head'):
-#                     indices = torch.randperm(mu.size(0)).to(device)
-#                     z1, z2 = mu, mu[indices]
-#                     contrastive_loss_value = contrastive_loss_fn(z1, z2, temperature)
-#                 else:
-#                     raise ValueError("VAE model must have a projection head for contrastive loss.")
-
-#             # Total loss
-#             total_loss = recon_loss + (alpha * contrastive_loss_value if alpha is not None else 0)
-
-#             # Backpropagation
-#             optimizer.zero_grad()
-#             total_loss.backward()
-#             optimizer.step()
-
-#             total_train_loss += total_loss.item()
-
-#         # Validation loop
-#         if val_loader:
-#             vae.eval()
-#             total_val_loss = 0
-#             with torch.no_grad():
-#                 for images, _ in val_loader:
-#                     images = images.to(device).float()
-#                     mu, logvar, decoded = vae(images)
-#                     val_loss = loss_fn(decoded, images, mu, logvar, beta)
-#                     total_val_loss += val_loss.item()
-
-#             avg_val_loss = total_val_loss / len(val_loader)
-#             print(f"Epoch [{epoch + 1}/{epochs}], Train Loss: {total_train_loss / len(train_loader):.4f}, Val Loss: {avg_val_loss:.4f}")
-
-#             # Save the best model
-#             if save_best and avg_val_loss < best_val_loss:
-#                 best_val_loss = avg_val_loss
-#                 torch.save(vae.state_dict(), save_path)
-#                 print(f"Model saved at epoch {epoch + 1}")
-#         else:
-#             print(f"Epoch [{epoch + 1}/{epochs}], Train Loss: {total_train_loss / len(train_loader):.4f}")
-
-#         # Step the scheduler if provided
-#         if scheduler:
-#             scheduler.step()
 
 def train_vae(
     vae: nn.Module,
@@ -527,6 +319,8 @@ def train_dae(
     contrastive_loss_fn: Optional[Callable] = None,
     triplet_loss_fn: Optional[Callable] = None,
     ssim_func: Optional[Callable] = None,
+    patience: int = 5,
+    min_delta: float = 0.001,
 ):
     """
     Unified training function for denoising autoencoders with support for:
@@ -535,7 +329,7 @@ def train_dae(
     - Triplet loss.
     - Noise injection.
     - Optional validation and model saving.
-
+    - Early Stopping
     Args:
         dae (nn.Module): Denoising autoencoder model.
         train_loader (DataLoader): DataLoader for training data.
@@ -553,12 +347,17 @@ def train_dae(
         contrastive_loss_fn (Optional[Callable]): Contrastive loss function (e.g., NT-Xent).
         triplet_loss_fn (Optional[Callable]): Triplet loss function.
         ssim_func (Optional[Callable]): SSIM function for SSIM-based reconstruction loss.
+        patience (int): Number of epochs with no significant improvement before triggering early stopping.
+        min_delta (float): Minimum change in loss to qualify as an improvement.
 
     Returns:
         None: Prints loss values for each epoch.
     """
     dae.to(device).train()
     best_val_loss = float('inf') if save_best else None
+
+    # Initialize early stopping
+    early_stopping = EarlyStopping(patience=5, min_delta=0.001)
 
     for epoch in range(epochs):
         # Training loop
@@ -641,8 +440,21 @@ def train_dae(
                 best_val_loss = avg_val_loss
                 torch.save(dae.state_dict(), save_path)
                 print(f"Model saved at epoch {epoch + 1}")
+
+            # Check for early stopping
+            early_stopping(avg_val_loss)
+            if early_stopping.early_stop:
+                print(f"Early stopping triggered at epoch {epoch + 1}.")
+                break
         else:
-            print(f"Epoch [{epoch + 1}/{epochs}], Train Loss: {total_train_loss / len(train_loader):.4f}")
+            avg_train_loss = total_train_loss / len(train_loader)
+            print(f"Epoch [{epoch + 1}/{epochs}], Train Loss: {avg_train_loss:.4f}")
+
+            # Check for early stopping (using training loss if no validation data)
+            early_stopping(avg_train_loss)
+            if early_stopping.early_stop:
+                print(f"Early stopping triggered at epoch {epoch + 1}.")
+                break
 
         # Step the scheduler if provided
         if scheduler:

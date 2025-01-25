@@ -297,7 +297,7 @@ def train_dae(
             noisy_images = add_noise(images, noise_factor)
 
             # Forward pass
-            encoded, decoded = dae(noisy_images)
+            _, encoded, decoded = dae(noisy_images)
 
             # Compute reconstruction loss
             if ssim_func:

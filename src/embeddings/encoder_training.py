@@ -221,6 +221,20 @@ def train_vae(
         if scheduler:
             scheduler.step()
 
+def add_noise(inputs, noise_factor=0.1):
+    """
+    Add Gaussian noise to the input tensor.
+
+    Args:
+        inputs (torch.Tensor): Input tensor.
+        noise_factor (float): Scaling factor for noise.
+
+    Returns:
+        torch.Tensor: Noisy tensor with values clamped between 0 and 1.
+    """
+    noisy_inputs = inputs + noise_factor * torch.randn_like(inputs)
+    return torch.clamp(noisy_inputs, 0., 1.)
+
 def train_dae(
     dae: nn.Module,
     train_loader: DataLoader,

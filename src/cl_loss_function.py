@@ -267,6 +267,40 @@ class ContrastiveHead(nn.Module):
         """
         return self.projector(x)
 
+class BarlowTwinsLoss(nn.Module):
+    def __init__(self, lambda_param=5e-3):
+        super(BarlowTwinsLoss, self).__init__()
+        self.lambda_param = lambda_param
+
+    def forward(self, z_a, z_b):
+        """
+        Compute the Barlow Twins loss between two sets of embeddings.
+
+        Args:
+            z_a (torch.Tensor): First set of embeddings.
+            z_b (torch.Tensor): Second set of embeddings.
+
+        Returns:
+            torch.Tensor: Computed Barlow Twins loss.
+        """
+        batch_size = z_a.size(0)
+        feature_dim = z_a.size(1)
+
+        # Normalize embeddings
+        z_a = (z_a - z_a.mean(dim=0)) / z_a.std(dim=0)
+        z_b = (z_b - z_b.mean(dim=0)) / z_b.std(dim=0)
+
+        # Compute cross-correlation matrix
+        cross_corr = torch.matmul(z_a.T, z_b) / batch_size
+
+        # Loss terms
+        invariance_loss = torch.sum((1 - torch.diag(cross_corr)) ** 2)
+        redundancy_loss = torch.sum(torch.triu(cross_corr, diagonal=1) ** 2) + torch.sum(torch.tril(cross_corr, diagonal=-1) ** 2)
+
+        # Total loss
+        loss = invariance_loss + self.lambda_param * redundancy_loss
+        return loss
+
 # Augmented NT-Xent Loss
 def compute_nt_xent_loss_with_augmentation(images, model, contrastive_head, temperature=0.5):
     """

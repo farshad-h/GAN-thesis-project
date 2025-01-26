@@ -749,7 +749,7 @@ class DenoisingAutoencoder(nn.Module):
             projected_encoded = self.projection_head(encoded)
             return projected_encoded, encoded, decoded
         else:
-            return encoded, decoded
+            return None, encoded, decoded
 
 def apply_dimensionality_reduction(method, data, n_components, scaler=None, **kwargs):
     """

@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_SVD/matrix_factorization_default_loss_SVD_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 18.96 ± 7.98
+- Skewness: 0.7494
+- Kurtosis: 8.4369
+- Outliers detected: 63
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 2.9082
+- Minimum: -24.3338
+- Maximum: 41.1136
+- Median: -0.0327
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0176
+
+Analysis completed successfully.

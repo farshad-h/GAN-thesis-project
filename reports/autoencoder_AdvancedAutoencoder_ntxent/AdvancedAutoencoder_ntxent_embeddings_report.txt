@@ -1,0 +1,29 @@
+Embedding Evaluation Report
+========================================
+File: autoencoder_AdvancedAutoencoder_ntxent/AdvancedAutoencoder_ntxent_embeddings.pt
+Generated at: 2025-01-27 11:00:37
+
+Dimensionality Analysis:
+- Actual dimensions: 50
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 105.94 ± 22.96
+- Skewness: -0.0057
+- Kurtosis: 0.4461
+- Outliers detected: 2341
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.0607
+- Silhouette Score: -0.0053
+- Calinski-Harabasz Index: 1009.6
+- Davies-Bouldin Index: 4.1827
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.8069
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.8074 ± 0.0024
+
+Statistical Summary:
+- Mean: 0.0949
+- Standard Deviation: 15.3293
+- Minimum: -102.4206
+- Maximum: 107.7913
+- Median: 0.0957

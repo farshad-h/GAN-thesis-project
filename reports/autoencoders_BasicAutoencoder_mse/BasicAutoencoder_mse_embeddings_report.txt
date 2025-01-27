@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: autoencoders_BasicAutoencoder_mse/BasicAutoencoder_mse_embeddings.pt
+Generated at: 2025-01-27 12:10:27
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.4245
+- Silhouette Score: 0.1107
+- Calinski-Harabasz Index: 452.7
+- Davies-Bouldin Index: 2.1991
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.9500
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.9454 ± 0.0053
+

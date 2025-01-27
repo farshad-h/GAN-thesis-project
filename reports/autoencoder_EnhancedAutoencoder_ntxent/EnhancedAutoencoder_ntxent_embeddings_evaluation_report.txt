@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_ntxent/EnhancedAutoencoder_ntxent_embeddings.pt
+Generated at: 2025-01-27 11:53:09
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 49.19 ± 8.99
+- Skewness: -0.0349
+- Kurtosis: 0.3151
+- Outliers detected: 51
+
+Statistical Summary:
+- Mean: -0.0015
+- Standard Deviation: 7.0725
+- Minimum: -47.9121
+- Maximum: 36.8247
+- Median: 0.0405
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0087
+
+Analysis completed successfully.

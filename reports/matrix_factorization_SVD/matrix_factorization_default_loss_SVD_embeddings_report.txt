@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_SVD/matrix_factorization_default_loss_SVD_embeddings.pt
+Generated at: 2025-01-27 12:07:33
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.2718
+- Silhouette Score: 0.0442
+- Calinski-Harabasz Index: 28.6
+- Davies-Bouldin Index: 2.4441
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.8214
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.8286 ± 0.0243
+

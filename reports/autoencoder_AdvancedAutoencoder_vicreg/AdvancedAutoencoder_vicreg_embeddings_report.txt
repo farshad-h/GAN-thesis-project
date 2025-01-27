@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: autoencoder_AdvancedAutoencoder_vicreg/AdvancedAutoencoder_vicreg_embeddings.pt
+Generated at: 2025-01-27 12:13:18
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.1766
+- Silhouette Score: 0.0604
+- Calinski-Harabasz Index: 38.3
+- Davies-Bouldin Index: 2.9079
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.7857
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.7586 ± 0.0214
+

@@ -1,0 +1,1133 @@
+
+================================================================================
+File: autoencoders_BasicAutoencoder/BasicAutoencoder_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoders_BasicAutoencoder/BasicAutoencoder_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (7000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 31.49 ± 4.21
+- Skewness: -0.6673
+- Kurtosis: 1.5908
+- Outliers detected: 30
+
+Statistical Summary:
+- Mean: -0.1059
+- Standard Deviation: 4.4916
+- Minimum: -22.3553
+- Maximum: 15.8084
+- Median: 0.1554
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0015
+
+Analysis completed successfully.
+
+================================================================================
+File: matrix_factorization_PCA/matrix_factorization_default_loss_PCA_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_PCA/matrix_factorization_default_loss_PCA_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 18.95 ± 8.00
+- Skewness: 0.7416
+- Kurtosis: 8.4649
+- Outliers detected: 64
+
+Statistical Summary:
+- Mean: -0.0000
+- Standard Deviation: 2.9095
+- Minimum: -24.3332
+- Maximum: 41.1132
+- Median: -0.0352
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0177
+
+Analysis completed successfully.
+
+================================================================================
+File: matrix_factorization_PCA/PCA_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_PCA/PCA_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 20.67 ± 6.59
+- Skewness: 1.1352
+- Kurtosis: 9.4982
+- Outliers detected: 4
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 3.0670
+- Minimum: -16.0334
+- Maximum: 25.8602
+- Median: -0.0544
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0223
+
+Analysis completed successfully.
+
+================================================================================
+File: matrix_factorization_SVD/SVD_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_SVD/SVD_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 20.67 ± 6.59
+- Skewness: 1.1343
+- Kurtosis: 9.4981
+- Outliers detected: 4
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 3.0670
+- Minimum: -16.0335
+- Maximum: 25.8602
+- Median: -0.0436
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0221
+
+Analysis completed successfully.
+
+================================================================================
+File: matrix_factorization_SVD/matrix_factorization_default_loss_SVD_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_SVD/matrix_factorization_default_loss_SVD_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 18.96 ± 7.98
+- Skewness: 0.7494
+- Kurtosis: 8.4369
+- Outliers detected: 63
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 2.9082
+- Minimum: -24.3338
+- Maximum: 41.1136
+- Median: -0.0327
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0176
+
+Analysis completed successfully.
+
+================================================================================
+File: matrix_factorization_NMF/NMF_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_NMF/NMF_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 0.1100
+- L2 Norm (mean ± std): 0.60 ± 0.69
+- Skewness: 16.4169
+- Kurtosis: 335.6328
+- Outliers detected: 39
+
+Statistical Summary:
+- Mean: 0.0147
+- Standard Deviation: 0.1282
+- Minimum: 0.0000
+- Maximum: 3.2066
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.1638
+
+Analysis completed successfully.
+
+================================================================================
+File: matrix_factorization_NMF/matrix_factorization_default_loss_NMF_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_NMF/matrix_factorization_default_loss_NMF_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 0.4946
+- L2 Norm (mean ± std): 0.39 ± 0.14
+- Skewness: 4.4891
+- Kurtosis: 30.0318
+- Outliers detected: 2
+
+Statistical Summary:
+- Mean: 0.0225
+- Standard Deviation: 0.0546
+- Minimum: 0.0000
+- Maximum: 0.8756
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.3687
+
+Analysis completed successfully.
+
+================================================================================
+File: kernel_pca_SIFT/SIFT_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: kernel_pca_SIFT/SIFT_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (64, 6400)
+- WARNING: Dimension mismatch! Expected 50, got 6400
+- Sparsity: 0.0000
+- L2 Norm (mean ± std): 0.00 ± 0.00
+- Skewness: nan
+- Kurtosis: nan
+- Outliers detected: 0
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 0.0000
+- Minimum: 0.0000
+- Maximum: 0.0000
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0000
+
+Analysis completed successfully.
+
+================================================================================
+File: kernel_pca_SIFT/matrix_factorization_default_loss_kernel_pca_SIFT_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: kernel_pca_SIFT/matrix_factorization_default_loss_kernel_pca_SIFT_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (700, 6400)
+- WARNING: Dimension mismatch! Expected 50, got 6400
+- Sparsity: 0.0000
+- L2 Norm (mean ± std): 0.00 ± 0.00
+- Skewness: nan
+- Kurtosis: nan
+- Outliers detected: 0
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 0.0000
+- Minimum: 0.0000
+- Maximum: 0.0000
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0000
+
+Analysis completed successfully.
+
+================================================================================
+File: kernel_pca_Kernel PCA/Kernel PCA_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: kernel_pca_Kernel PCA/Kernel PCA_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.77 ± 0.14
+- Skewness: 0.5576
+- Kurtosis: 3.2577
+- Outliers detected: 0
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 0.1109
+- Minimum: -0.4215
+- Maximum: 0.7943
+- Median: -0.0029
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0181
+
+Analysis completed successfully.
+
+================================================================================
+File: kernel_pca_Kernel PCA/matrix_factorization_default_loss_kernel_pca_Kernel PCA_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: kernel_pca_Kernel PCA/matrix_factorization_default_loss_kernel_pca_Kernel PCA_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.58 ± 0.06
+- Skewness: 0.2751
+- Kurtosis: 3.1932
+- Outliers detected: 63
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 0.0822
+- Minimum: -0.4181
+- Maximum: 0.4732
+- Median: -0.0016
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0158
+
+Analysis completed successfully.
+
+================================================================================
+File: normalizing_flow_PCA/PCA_refined_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_PCA/PCA_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 114.98 ± 82.32
+- Skewness: -2.1486
+- Kurtosis: 94.6758
+- Outliers detected: 14
+
+Statistical Summary:
+- Mean: 0.5087
+- Standard Deviation: 19.9417
+- Minimum: -418.4409
+- Maximum: 281.6396
+- Median: 0.0299
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0198
+
+Analysis completed successfully.
+
+================================================================================
+File: normalizing_flow_PCA/matrix_factorization_default_loss_normalizing_flow_PCA_refined_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_PCA/matrix_factorization_default_loss_normalizing_flow_PCA_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 16.15 ± 7.91
+- Skewness: 0.0616
+- Kurtosis: 13.2005
+- Outliers detected: 336
+
+Statistical Summary:
+- Mean: -0.0037
+- Standard Deviation: 2.5425
+- Minimum: -38.2537
+- Maximum: 30.6606
+- Median: -0.0168
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0079
+
+Analysis completed successfully.
+
+================================================================================
+File: normalizing_flow_SVD/SVD_refined_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_SVD/SVD_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 126.02 ± 88.27
+- Skewness: -6.3991
+- Kurtosis: 175.0018
+- Outliers detected: 10
+
+Statistical Summary:
+- Mean: -0.3572
+- Standard Deviation: 21.7034
+- Minimum: -577.9169
+- Maximum: 206.2168
+- Median: -0.1580
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0139
+
+Analysis completed successfully.
+
+================================================================================
+File: normalizing_flow_SVD/matrix_factorization_default_loss_normalizing_flow_SVD_refined_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_SVD/matrix_factorization_default_loss_normalizing_flow_SVD_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 16.15 ± 7.64
+- Skewness: -0.0183
+- Kurtosis: 13.7949
+- Outliers detected: 343
+
+Statistical Summary:
+- Mean: -0.0166
+- Standard Deviation: 2.5260
+- Minimum: -38.5124
+- Maximum: 37.3873
+- Median: -0.0196
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0097
+
+Analysis completed successfully.
+
+================================================================================
+File: normalizing_flow_NMF/NMF_refined_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_NMF/NMF_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:05
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.99 ± 0.47
+- Skewness: 0.1778
+- Kurtosis: 6.6176
+- Outliers detected: 40
+
+Statistical Summary:
+- Mean: -0.0222
+- Standard Deviation: 0.1536
+- Minimum: -1.1583
+- Maximum: 1.0635
+- Median: -0.0148
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.1602
+
+Analysis completed successfully.
+
+================================================================================
+File: normalizing_flow_NMF/matrix_factorization_default_loss_normalizing_flow_NMF_refined_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_NMF/matrix_factorization_default_loss_normalizing_flow_NMF_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:05
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.51 ± 0.10
+- Skewness: -0.0678
+- Kurtosis: 0.8124
+- Outliers detected: 56
+
+Statistical Summary:
+- Mean: -0.0090
+- Standard Deviation: 0.0728
+- Minimum: -0.5152
+- Maximum: 0.3251
+- Median: -0.0084
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.1219
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoders_AdvancedAutoencoder/AdvancedAutoencoder_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoders_AdvancedAutoencoder/AdvancedAutoencoder_embeddings.pt
+Generated at: 2025-01-27 11:53:05
+
+Dimensionality Analysis:
+- Shape: (7000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 48.48 ± 7.99
+- Skewness: -0.0817
+- Kurtosis: -0.0156
+- Outliers detected: 71
+
+Statistical Summary:
+- Mean: -0.6894
+- Standard Deviation: 6.9138
+- Minimum: -31.6230
+- Maximum: 26.3945
+- Median: -0.6426
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0904
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoders_AdvancedAutoencoder_mse/AdvancedAutoencoder_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoders_AdvancedAutoencoder_mse/AdvancedAutoencoder_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:06
+
+Dimensionality Analysis:
+- Shape: (7000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 76.96 ± 9.04
+- Skewness: 0.1463
+- Kurtosis: 0.4580
+- Outliers detected: 94
+
+Statistical Summary:
+- Mean: 0.6839
+- Standard Deviation: 10.9368
+- Minimum: -47.2481
+- Maximum: 58.9642
+- Median: 0.5056
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0804
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoders_IntermediateAutoencoder_mse/IntermediateAutoencoder_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoders_IntermediateAutoencoder_mse/IntermediateAutoencoder_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 131.20 ± 19.58
+- Skewness: -0.0901
+- Kurtosis: 0.4096
+- Outliers detected: 115
+
+Statistical Summary:
+- Mean: 0.7781
+- Standard Deviation: 18.7437
+- Minimum: -109.4365
+- Maximum: 100.4989
+- Median: 1.0461
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0472
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoders_BasicAutoencoder_mse/BasicAutoencoder_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoders_BasicAutoencoder_mse/BasicAutoencoder_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (7000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 26.19 ± 3.10
+- Skewness: -0.4571
+- Kurtosis: 1.7451
+- Outliers detected: 63
+
+Statistical Summary:
+- Mean: -0.2848
+- Standard Deviation: 3.7185
+- Minimum: -24.8245
+- Maximum: 14.6522
+- Median: -0.1164
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0571
+
+Analysis completed successfully.
+
+================================================================================
+File: vae_BasicVAE_mse/BasicVAE_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: vae_BasicVAE_mse/BasicVAE_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.40 ± 0.08
+- Skewness: -0.0141
+- Kurtosis: 0.5758
+- Outliers detected: 11
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 0.0571
+- Minimum: -0.2818
+- Maximum: 0.2763
+- Median: 0.0001
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0006
+
+Analysis completed successfully.
+
+================================================================================
+File: vae_ImprovedVAE_mse/ImprovedVAE_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: vae_ImprovedVAE_mse/ImprovedVAE_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.02 ± 0.00
+- Skewness: 0.8144
+- Kurtosis: 2.8997
+- Outliers detected: 0
+
+Statistical Summary:
+- Mean: 0.0006
+- Standard Deviation: 0.0030
+- Minimum: -0.0077
+- Maximum: 0.0111
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.1797
+
+Analysis completed successfully.
+
+================================================================================
+File: vae_FlexibleVAE_mse/FlexibleVAE_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: vae_FlexibleVAE_mse/FlexibleVAE_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.01 ± 0.00
+- Skewness: -0.0386
+- Kurtosis: 0.3564
+- Outliers detected: 3
+
+Statistical Summary:
+- Mean: -0.0000
+- Standard Deviation: 0.0018
+- Minimum: -0.0092
+- Maximum: 0.0079
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0066
+
+Analysis completed successfully.
+
+================================================================================
+File: vae_ImprovedFlexibleVAE_mse/ImprovedFlexibleVAE_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: vae_ImprovedFlexibleVAE_mse/ImprovedFlexibleVAE_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.01 ± 0.00
+- Skewness: -1.0536
+- Kurtosis: 3.6127
+- Outliers detected: 0
+
+Statistical Summary:
+- Mean: -0.0000
+- Standard Deviation: 0.0019
+- Minimum: -0.0070
+- Maximum: 0.0041
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0032
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_AdvancedAutoencoder_mse/AdvancedAutoencoder_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_AdvancedAutoencoder_mse/AdvancedAutoencoder_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 751.35 ± 71.90
+- Skewness: 0.3114
+- Kurtosis: -0.9187
+- Outliers detected: 6
+
+Statistical Summary:
+- Mean: -8.9541
+- Standard Deviation: 106.3665
+- Minimum: -212.0908
+- Maximum: 235.8394
+- Median: -33.9301
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0767
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_EnhancedAutoencoder_mse/EnhancedAutoencoder_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_mse/EnhancedAutoencoder_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 116.35 ± 6.85
+- Skewness: -0.3072
+- Kurtosis: -0.5584
+- Outliers detected: 2
+
+Statistical Summary:
+- Mean: -1.3154
+- Standard Deviation: 16.4301
+- Minimum: -47.6149
+- Maximum: 36.5836
+- Median: 1.7656
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0729
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_IntermediateAutoencoder_vicreg/IntermediateAutoencoder_vicreg_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_IntermediateAutoencoder_vicreg/IntermediateAutoencoder_vicreg_embeddings.pt
+Generated at: 2025-01-27 11:53:08
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 4.24 ± 0.68
+- Skewness: -0.3502
+- Kurtosis: 16.8763
+- Outliers detected: 15
+
+Statistical Summary:
+- Mean: -0.0003
+- Standard Deviation: 0.6067
+- Minimum: -8.1907
+- Maximum: 7.6817
+- Median: -0.0030
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0052
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_AdvancedAutoencoder_vicreg/AdvancedAutoencoder_vicreg_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_AdvancedAutoencoder_vicreg/AdvancedAutoencoder_vicreg_embeddings.pt
+Generated at: 2025-01-27 11:53:08
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 45.19 ± 1.98
+- Skewness: 0.1026
+- Kurtosis: -1.4486
+- Outliers detected: 1
+
+Statistical Summary:
+- Mean: -1.2481
+- Standard Deviation: 6.2739
+- Minimum: -12.9694
+- Maximum: 11.0025
+- Median: -2.3869
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.1743
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_EnhancedAutoencoder_ntxent/EnhancedAutoencoder_ntxent_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_ntxent/EnhancedAutoencoder_ntxent_embeddings.pt
+Generated at: 2025-01-27 11:53:09
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 49.19 ± 8.99
+- Skewness: -0.0349
+- Kurtosis: 0.3151
+- Outliers detected: 51
+
+Statistical Summary:
+- Mean: -0.0015
+- Standard Deviation: 7.0725
+- Minimum: -47.9121
+- Maximum: 36.8247
+- Median: 0.0405
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0087
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_EnhancedAutoencoder_contrastive/EnhancedAutoencoder_contrastive_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_contrastive/EnhancedAutoencoder_contrastive_embeddings.pt
+Generated at: 2025-01-27 11:53:10
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 48.06 ± 9.24
+- Skewness: -0.0082
+- Kurtosis: 0.3465
+- Outliers detected: 55
+
+Statistical Summary:
+- Mean: 0.0051
+- Standard Deviation: 6.9210
+- Minimum: -40.1658
+- Maximum: 36.5716
+- Median: -0.0114
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0064
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_EnhancedAutoencoder_info_nce/EnhancedAutoencoder_info_nce_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_info_nce/EnhancedAutoencoder_info_nce_embeddings.pt
+Generated at: 2025-01-27 11:53:11
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 57.28 ± 10.15
+- Skewness: 0.0375
+- Kurtosis: 0.2126
+- Outliers detected: 72
+
+Statistical Summary:
+- Mean: 0.0616
+- Standard Deviation: 8.2262
+- Minimum: -45.2825
+- Maximum: 45.2345
+- Median: -0.0076
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0035
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_EnhancedAutoencoder_vicreg/EnhancedAutoencoder_vicreg_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_vicreg/EnhancedAutoencoder_vicreg_embeddings.pt
+Generated at: 2025-01-27 11:53:12
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 4.35 ± 1.07
+- Skewness: 1.0069
+- Kurtosis: 38.2470
+- Outliers detected: 70
+
+Statistical Summary:
+- Mean: 0.0090
+- Standard Deviation: 0.6336
+- Minimum: -10.4568
+- Maximum: 10.2546
+- Median: -0.0030
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0001
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_EnhancedAutoencoder_barlow_twins/EnhancedAutoencoder_barlow_twins_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_barlow_twins/EnhancedAutoencoder_barlow_twins_embeddings.pt
+Generated at: 2025-01-27 11:53:14
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 56.66 ± 8.41
+- Skewness: -0.7226
+- Kurtosis: 10.9436
+- Outliers detected: 6
+
+Statistical Summary:
+- Mean: 1.1851
+- Standard Deviation: 8.0139
+- Minimum: -81.3686
+- Maximum: 95.3664
+- Median: 1.3624
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.1395
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_IntermediateAutoencoder_mse/IntermediateAutoencoder_mse_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_IntermediateAutoencoder_mse/IntermediateAutoencoder_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:16
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 143.77 ± 19.14
+- Skewness: 0.5159
+- Kurtosis: 1.9676
+- Outliers detected: 89
+
+Statistical Summary:
+- Mean: 1.0442
+- Standard Deviation: 20.4846
+- Minimum: -112.4793
+- Maximum: 142.8140
+- Median: 0.4791
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0552
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_IntermediateAutoencoder_ntxent/IntermediateAutoencoder_ntxent_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_IntermediateAutoencoder_ntxent/IntermediateAutoencoder_ntxent_embeddings.pt
+Generated at: 2025-01-27 11:53:17
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 108.82 ± 24.40
+- Skewness: -0.0214
+- Kurtosis: 0.7571
+- Outliers detected: 65
+
+Statistical Summary:
+- Mean: -0.0831
+- Standard Deviation: 15.7712
+- Minimum: -112.3862
+- Maximum: 136.5250
+- Median: 0.0529
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0042
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_IntermediateAutoencoder_contrastive/IntermediateAutoencoder_contrastive_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_IntermediateAutoencoder_contrastive/IntermediateAutoencoder_contrastive_embeddings.pt
+Generated at: 2025-01-27 11:53:18
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 112.01 ± 28.96
+- Skewness: 0.0736
+- Kurtosis: 1.6563
+- Outliers detected: 138
+
+Statistical Summary:
+- Mean: 0.2070
+- Standard Deviation: 16.3597
+- Minimum: -179.8863
+- Maximum: 230.9821
+- Median: 0.1883
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0119
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_IntermediateAutoencoder_info_nce/IntermediateAutoencoder_info_nce_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_IntermediateAutoencoder_info_nce/IntermediateAutoencoder_info_nce_embeddings.pt
+Generated at: 2025-01-27 11:53:20
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 183.37 ± 37.22
+- Skewness: -0.0036
+- Kurtosis: 0.4473
+- Outliers detected: 66
+
+Statistical Summary:
+- Mean: 0.9153
+- Standard Deviation: 26.4450
+- Minimum: -160.1191
+- Maximum: 166.0224
+- Median: 0.9744
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0314
+
+Analysis completed successfully.
+
+================================================================================
+File: autoencoder_IntermediateAutoencoder_barlow_twins/IntermediateAutoencoder_barlow_twins_embeddings.pt
+================================================================================
+
+Embedding Evaluation Report
+========================================
+File: autoencoder_IntermediateAutoencoder_barlow_twins/IntermediateAutoencoder_barlow_twins_embeddings.pt
+Generated at: 2025-01-27 11:53:21
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 117.87 ± 13.46
+- Skewness: -0.0001
+- Kurtosis: 6.8874
+- Outliers detected: 3
+
+Statistical Summary:
+- Mean: 0.7366
+- Standard Deviation: 16.7609
+- Minimum: -183.3573
+- Maximum: 169.9964
+- Median: 0.8744
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0378
+
+Analysis completed successfully.

@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_ntxent/EnhancedAutoencoder_ntxent_embeddings.pt
+Generated at: 2025-01-27 12:16:06
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.2849
+- Silhouette Score: 0.0321
+- Calinski-Harabasz Index: 1219.5
+- Davies-Bouldin Index: 3.7630
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.9629
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.9617 ± 0.0014
+

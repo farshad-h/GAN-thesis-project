@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_PCA/matrix_factorization_default_loss_normalizing_flow_PCA_refined_embeddings.pt
+Generated at: 2025-01-27 12:07:35
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.0197
+- Silhouette Score: -0.0112
+- Calinski-Harabasz Index: 10.2
+- Davies-Bouldin Index: 2.8722
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.2714
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.2971 ± 0.0167
+

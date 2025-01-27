@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_NMF/NMF_refined_embeddings.pt
+Generated at: 2025-01-27 12:07:35
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.0305
+- Silhouette Score: 0.4077
+- Calinski-Harabasz Index: 17.3
+- Davies-Bouldin Index: 0.5954
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.3077
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.3782 ± 0.1068
+

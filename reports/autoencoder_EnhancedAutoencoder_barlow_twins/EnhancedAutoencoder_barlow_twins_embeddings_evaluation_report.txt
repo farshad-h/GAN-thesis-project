@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: autoencoder_EnhancedAutoencoder_barlow_twins/EnhancedAutoencoder_barlow_twins_embeddings.pt
+Generated at: 2025-01-27 11:53:14
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 56.66 ± 8.41
+- Skewness: -0.7226
+- Kurtosis: 10.9436
+- Outliers detected: 6
+
+Statistical Summary:
+- Mean: 1.1851
+- Standard Deviation: 8.0139
+- Minimum: -81.3686
+- Maximum: 95.3664
+- Median: 1.3624
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.1395
+
+Analysis completed successfully.

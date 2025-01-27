@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_NMF/matrix_factorization_default_loss_NMF_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 0.4946
+- L2 Norm (mean ± std): 0.39 ± 0.14
+- Skewness: 4.4891
+- Kurtosis: 30.0318
+- Outliers detected: 2
+
+Statistical Summary:
+- Mean: 0.0225
+- Standard Deviation: 0.0546
+- Minimum: 0.0000
+- Maximum: 0.8756
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.3687
+
+Analysis completed successfully.

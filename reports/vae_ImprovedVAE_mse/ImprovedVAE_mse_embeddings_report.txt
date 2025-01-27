@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: vae_ImprovedVAE_mse/ImprovedVAE_mse_embeddings.pt
+Generated at: 2025-01-27 12:10:28
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): -0.0001
+- Silhouette Score: 0.0000
+- Calinski-Harabasz Index: 17.4
+- Davies-Bouldin Index: 1.0401
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.1000
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.0971 ± 0.0057
+

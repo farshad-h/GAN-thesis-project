@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: kernel_pca_Kernel PCA/matrix_factorization_default_loss_kernel_pca_Kernel PCA_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.58 ± 0.06
+- Skewness: 0.2751
+- Kurtosis: 3.1932
+- Outliers detected: 63
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 0.0822
+- Minimum: -0.4181
+- Maximum: 0.4732
+- Median: -0.0016
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0158
+
+Analysis completed successfully.

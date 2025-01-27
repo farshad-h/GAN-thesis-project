@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_PCA/PCA_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 114.98 ± 82.32
+- Skewness: -2.1486
+- Kurtosis: 94.6758
+- Outliers detected: 14
+
+Statistical Summary:
+- Mean: 0.5087
+- Standard Deviation: 19.9417
+- Minimum: -418.4409
+- Maximum: 281.6396
+- Median: 0.0299
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0198
+
+Analysis completed successfully.

@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_PCA/matrix_factorization_default_loss_PCA_embeddings.pt
+Generated at: 2025-01-27 12:07:32
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.2869
+- Silhouette Score: 0.0361
+- Calinski-Harabasz Index: 28.4
+- Davies-Bouldin Index: 2.4707
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.8214
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.8329 ± 0.0258
+

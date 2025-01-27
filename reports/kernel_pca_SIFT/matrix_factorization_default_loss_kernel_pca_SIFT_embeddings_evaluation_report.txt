@@ -1,0 +1,25 @@
+Embedding Evaluation Report
+========================================
+File: kernel_pca_SIFT/matrix_factorization_default_loss_kernel_pca_SIFT_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (700, 6400)
+- WARNING: Dimension mismatch! Expected 50, got 6400
+- Sparsity: 0.0000
+- L2 Norm (mean ± std): 0.00 ± 0.00
+- Skewness: nan
+- Kurtosis: nan
+- Outliers detected: 0
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 0.0000
+- Minimum: 0.0000
+- Maximum: 0.0000
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0000
+
+Analysis completed successfully.

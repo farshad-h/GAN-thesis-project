@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: autoencoder_IntermediateAutoencoder_barlow_twins/IntermediateAutoencoder_barlow_twins_embeddings.pt
+Generated at: 2025-01-27 12:42:25
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.3333
+- Silhouette Score: 0.0764
+- Calinski-Harabasz Index: 1893.0
+- Davies-Bouldin Index: 3.2042
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.9699
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.9708 ± 0.0010
+

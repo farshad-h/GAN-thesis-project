@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: vae_ImprovedVAE_mse/ImprovedVAE_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.02 ± 0.00
+- Skewness: 0.8144
+- Kurtosis: 2.8997
+- Outliers detected: 0
+
+Statistical Summary:
+- Mean: 0.0006
+- Standard Deviation: 0.0030
+- Minimum: -0.0077
+- Maximum: 0.0111
+- Median: 0.0000
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.1797
+
+Analysis completed successfully.

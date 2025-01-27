@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_NMF/NMF_embeddings.pt
+Generated at: 2025-01-27 12:07:33
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.0802
+- Silhouette Score: 0.3238
+- Calinski-Harabasz Index: 32.0
+- Davies-Bouldin Index: 0.6098
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.3077
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.4397 ± 0.0917
+

@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_SVD/SVD_refined_embeddings.pt
+Generated at: 2025-01-27 12:07:35
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.0075
+- Silhouette Score: 0.1105
+- Calinski-Harabasz Index: 9.3
+- Davies-Bouldin Index: 0.4469
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.0000
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.1744 ± 0.0849
+

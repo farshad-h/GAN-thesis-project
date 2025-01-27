@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: autoencoder_AdvancedAutoencoder_vicreg/AdvancedAutoencoder_vicreg_embeddings.pt
+Generated at: 2025-01-27 11:53:08
+
+Dimensionality Analysis:
+- Shape: (700, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 45.19 ± 1.98
+- Skewness: 0.1026
+- Kurtosis: -1.4486
+- Outliers detected: 1
+
+Statistical Summary:
+- Mean: -1.2481
+- Standard Deviation: 6.2739
+- Minimum: -12.9694
+- Maximum: 11.0025
+- Median: -2.3869
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.1743
+
+Analysis completed successfully.

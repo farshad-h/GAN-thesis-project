@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_NMF/NMF_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:05
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 0.99 ± 0.47
+- Skewness: 0.1778
+- Kurtosis: 6.6176
+- Outliers detected: 40
+
+Statistical Summary:
+- Mean: -0.0222
+- Standard Deviation: 0.1536
+- Minimum: -1.1583
+- Maximum: 1.0635
+- Median: -0.0148
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.1602
+
+Analysis completed successfully.

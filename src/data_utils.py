@@ -311,8 +311,8 @@ def analyze_embeddings_v2(embeddings, expected_dim=None, labels=None):
     logger.info(f"Kurtosis of embeddings: {kurt}")
 
     # 5. Pairwise Distance (Euclidean)
-    pairwise_distances = pdist(embedding_numpy, 'euclidean')  # Or use 'cosine' distance
-    logger.info(f"Pairwise distance (mean): {np.mean(pairwise_distances)}")
+    # pairwise_distances = pdist(embedding_numpy, 'euclidean')  # Or use 'cosine' distance
+    # logger.info(f"Pairwise distance (mean): {np.mean(pairwise_distances)}")
 
     # 6. Cosine Similarity with True Labels (if labels available)
     if labels is not None:

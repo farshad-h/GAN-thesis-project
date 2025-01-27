@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: autoencoders_IntermediateAutoencoder_mse/IntermediateAutoencoder_mse_embeddings.pt
+Generated at: 2025-01-27 11:53:07
+
+Dimensionality Analysis:
+- Shape: (10000, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 131.20 ± 19.58
+- Skewness: -0.0901
+- Kurtosis: 0.4096
+- Outliers detected: 115
+
+Statistical Summary:
+- Mean: 0.7781
+- Standard Deviation: 18.7437
+- Minimum: -109.4365
+- Maximum: 100.4989
+- Median: 1.0461
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: 0.0472
+
+Analysis completed successfully.

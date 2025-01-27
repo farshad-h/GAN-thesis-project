@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: matrix_factorization_PCA/PCA_embeddings.pt
+Generated at: 2025-01-27 11:53:03
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 20.67 ± 6.59
+- Skewness: 1.1352
+- Kurtosis: 9.4982
+- Outliers detected: 4
+
+Statistical Summary:
+- Mean: 0.0000
+- Standard Deviation: 3.0670
+- Minimum: -16.0334
+- Maximum: 25.8602
+- Median: -0.0544
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0223
+
+Analysis completed successfully.

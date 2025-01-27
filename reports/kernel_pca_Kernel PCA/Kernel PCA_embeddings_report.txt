@@ -1,0 +1,15 @@
+Embedding Evaluation Report
+========================================
+File: kernel_pca_Kernel PCA/Kernel PCA_embeddings.pt
+Generated at: 2025-01-27 12:07:34
+
+Clustering Metrics:
+- Adjusted Rand Index (ARI): 0.1593
+- Silhouette Score: 0.0292
+- Calinski-Harabasz Index: 2.6
+- Davies-Bouldin Index: 1.9999
+
+Classification Metrics:
+- k-NN Accuracy (k=5): 0.3846
+- k-NN Cross-Validated Accuracy (k=5, cv=5): 0.6115 ± 0.1420
+

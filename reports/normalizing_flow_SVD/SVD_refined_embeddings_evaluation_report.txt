@@ -1,0 +1,24 @@
+Embedding Evaluation Report
+========================================
+File: normalizing_flow_SVD/SVD_refined_embeddings.pt
+Generated at: 2025-01-27 11:53:04
+
+Dimensionality Analysis:
+- Shape: (64, 50)
+- Sparsity: 1.0000
+- L2 Norm (mean ± std): 126.02 ± 88.27
+- Skewness: -6.3991
+- Kurtosis: 175.0018
+- Outliers detected: 10
+
+Statistical Summary:
+- Mean: -0.3572
+- Standard Deviation: 21.7034
+- Minimum: -577.9169
+- Maximum: 206.2168
+- Median: -0.1580
+
+Cosine Similarity:
+- Average Cosine Similarity with True Labels: -0.0139
+
+Analysis completed successfully.

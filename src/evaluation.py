@@ -3,6 +3,7 @@
 import logging
 import numpy as np
 import torch
+from scipy.linalg import sqrtm
 from sklearn.cluster import KMeans
 from sklearn.metrics import (
     adjusted_rand_score,
@@ -124,50 +125,6 @@ def evaluate_embedding_quality_cv(embeddings, labels, k=5, cv=5):
     logger.info(f"k-NN Accuracy (CV) - Mean: {mean_accuracy:.4f}, Std: {std_accuracy:.4f}")
     return mean_accuracy, std_accuracy
 
-# Fréchet Inception Distance (FID)
-def calculate_fid(real_embeddings, generated_embeddings):
-    """
-    Calculate the Fréchet Inception Distance (FID) between real and generated embeddings.
-
-    Args:
-        real_embeddings (np.ndarray): Real embeddings from the dataset.
-        generated_embeddings (np.ndarray): Generated embeddings from the model.
-
-    Returns:
-        float: FID score.
-    """
-    mu1, sigma1 = np.mean(real_embeddings, axis=0), np.cov(real_embeddings, rowvar=False)
-    mu2, sigma2 = np.mean(generated_embeddings, axis=0), np.cov(generated_embeddings, rowvar=False)
-    diff = mu1 - mu2
-    covmean = np.sqrt(sigma1 @ sigma2 + 1e-6)
-    return np.sum(diff**2) + np.trace(sigma1 + sigma2 - 2 * covmean)
-
-# Inception Score (IS
-def calculate_inception_score(embeddings, num_splits=10):
-    """
-    Calculate the Inception Score (IS) for evaluating generated embeddings.
-
-    Args:
-        embeddings (torch.Tensor): Generated embeddings or predictions.
-        num_splits (int): Number of splits for IS calculation.
-
-    Returns:
-        tuple: Mean and standard deviation of the Inception Score.
-
-    Application:
-        This metric evaluates the diversity and quality of generated embeddings
-        by assessing their resemblance to a target distribution.
-    """
-    p_yx = F.softmax(embeddings, dim=1).cpu().numpy()
-    p_y = np.mean(p_yx, axis=0)
-    split_scores = []
-    for i in range(num_splits):
-        part = p_yx[i * (len(p_yx) // num_splits) : (i + 1) * (len(p_yx) // num_splits), :]
-        kl = part * (np.log(part + 1e-16) - np.log(p_y + 1e-16))
-        kl = np.mean(np.sum(kl, axis=1))
-        split_scores.append(np.exp(kl))
-    return np.mean(split_scores), np.std(split_scores)
-
 # Visualization
 def visualize_embeddings(embeddings, labels, method="tsne"):
     """
@@ -270,3 +227,41 @@ def evaluate_classification_metrics(y_true, y_pred):
     f1 = f1_score(y_true, y_pred, average='weighted')
     logger.info(f"Precision: {precision:.4f}, Recall: {recall:.4f}, F1 Score: {f1:.4f}")
     return precision, recall, f1
+
+# Fréchet Inception Distance (FID)
+def calculate_fid(real_embeddings, generated_embeddings):
+    """
+    Compute the Fréchet Inception Distance (FID).
+    """
+    mu1, sigma1 = np.mean(real_embeddings, axis=0), np.cov(real_embeddings, rowvar=False)
+    mu2, sigma2 = np.mean(generated_embeddings, axis=0), np.cov(generated_embeddings, rowvar=False)
+    
+    # Compute the squared difference of means
+    diff = mu1 - mu2
+    
+    # Compute sqrt of product of covariance matrices using scipy for numerical stability
+    covmean = sqrtm(sigma1 @ sigma2)
+    
+    # Check if the sqrt matrix has imaginary parts due to numerical instability
+    if np.iscomplexobj(covmean):
+        covmean = covmean.real
+
+    fid = np.sum(diff**2) + np.trace(sigma1 + sigma2 - 2 * covmean)
+    return fid
+
+
+def calculate_inception_score(embeddings, num_splits=10):
+    """
+    Compute the Inception Score (IS).
+    """
+    p_yx = F.softmax(torch.tensor(embeddings), dim=1).numpy()
+    p_y = np.mean(p_yx, axis=0)
+    
+    split_scores = []
+    for i in range(num_splits):
+        part = p_yx[i * (len(p_yx) // num_splits) : (i + 1) * (len(p_yx) // num_splits), :]
+        kl = part * (np.log(part + 1e-16) - np.log(p_y + 1e-16))
+        kl = np.mean(np.sum(kl, axis=1))
+        split_scores.append(np.exp(kl))
+    
+    return np.mean(split_scores), np.std(split_scores)

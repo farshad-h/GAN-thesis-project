@@ -12,15 +12,15 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
-from plan1_gan_models import (
-    SimpleGenerator,
-    EmbeddingAsInputGenerator,
-    Discriminator,
-    AC_Generator,
-    AC_Discriminator,
-    Info_Generator,
-    Info_Discriminator,
-)
+# from plan1_gan_models import (
+#     SimpleGenerator,
+#     EmbeddingAsInputGenerator,
+#     Discriminator,
+#     AC_Generator,
+#     AC_Discriminator,
+#     Info_Generator,
+#     Info_Discriminator,
+# )
 
 # Training Normal GAN
 

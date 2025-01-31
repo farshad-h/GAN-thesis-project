@@ -1,12 +1,12 @@
 {
-    "FID (Original vs Generated)": 3168.3837326412527,
-    "FID (Original vs Eval)": 4.648423069190201,
-    "KL Divergence": 0.852465560331745,
-    "Cosine Similarity": -0.029200231656432152,
-    "Spearman Rank Correlation": -0.001026911586911587,
-    "Wasserstein Distance": 5.337305017162924,
+    "FID (Original vs Generated)": 3157.7596271003063,
+    "FID (Original vs Eval)": 5.357264403315227,
+    "KL Divergence": 0.8167954598955977,
+    "Cosine Similarity": 0.01681012660264969,
+    "Spearman Rank Correlation": 0.005456705936705938,
+    "Wasserstein Distance": 5.345754986708813,
     "Coverage Score": 0.0,
     "Memorization Score": 0.0,
     "Unique Embedding Ratio": 1.0,
-    "Aggregate Quality Score": 0.20214769038974234
+    "Aggregate Quality Score": 0.21411826657796912
 }

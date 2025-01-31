@@ -1,0 +1,12 @@
+{
+    "FID (Original vs Generated)": 994.9831648909394,
+    "FID (Original vs Eval)": 2.0811791645141176,
+    "KL Divergence": 0.5027002327709843,
+    "Cosine Similarity": 0.03445049747824669,
+    "Spearman Rank Correlation": 0.0026610278610278613,
+    "Wasserstein Distance": 0.11059856232648203,
+    "Coverage Score": 0.0,
+    "Memorization Score": 0.0,
+    "Unique Embedding Ratio": 1.0,
+    "Aggregate Quality Score": 0.24065155943647626
+}
